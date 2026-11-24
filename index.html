@@ -242,7 +242,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
     <div class="calendar-top"><div class="calendar-heading"><h1>Расписание на <span id="calendar-month">ноябрь</span></h1><div class="month-arrows"><button id="month-prev" aria-label="Предыдущий месяц">←</button><button id="month-next" aria-label="Следующий месяц">→</button></div></div><div class="calendar-actions"><button class="calendar-mode" id="individual-mode">Индивидуальный план</button><button class="calendar-mode active" id="course-mode">Расписание курса</button></div></div>
     <div id="schedule-gate" class="schedule-gate"><h2>Расписание доступно ученикам</h2><p>Войдите через Telegram. Если доступ ещё не выдан, попросите администратора онлайн-школы подключить его.</p><button type="button" class="primary-action" id="schedule-login">Войти через Telegram</button></div>
     <div id="schedule-content" hidden>
-     <div class="schedule-toolbar"><button type="button" class="logout-action" id="telegram-logout">Выйти из аккаунта</button></div>
+     <button type="button" class="logout-action" id="telegram-logout" hidden>Выйти из аккаунта</button>
      <div id="course-calendar"><div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="schedule-list" id="schedule-list"></div><p class="calendar-note" id="schedule-note" role="status"></p></div>
      <div class="day-modal" id="day-modal" hidden>
       <div class="day-modal-backdrop" data-day-modal-close></div>
