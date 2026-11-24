@@ -1,0 +1,3 @@
+[functions.telegram-registration]
+verify_jwt = false
+

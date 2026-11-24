@@ -55,6 +55,13 @@
 .my-courses-icon{font-size:38px;color:var(--accent);margin-bottom:8px}
 .my-courses-empty h2{font-size:20px;margin:0 0 7px}
 .my-courses-empty p{max-width:420px;color:var(--muted);font-size:13px;margin:0}
+.telegram-register-button{margin-top:20px;border:0;border-radius:24px;background:var(--accent);color:#fff;padding:11px 18px;font-size:13px;font-weight:800}
+.telegram-register-button:hover{background:#f0785b}
+.telegram-register-button:disabled{opacity:.65;cursor:wait}
+.telegram-register-link{margin-top:12px;color:#f17a5d;font-size:13px;font-weight:750}
+.telegram-auth-status{min-height:20px;margin-top:12px!important;font-size:12px!important}
+.telegram-code-input{margin-top:18px;width:min(280px,100%);border:1px solid #494242;border-radius:12px;background:#151212;color:var(--text);padding:12px 14px;text-align:center;font-size:20px;letter-spacing:5px}
+.telegram-verify-button{margin-top:12px;border:1px solid #494242;border-radius:24px;background:transparent;color:var(--text);padding:10px 17px;font-size:13px;font-weight:750}
 @media(max-width:760px){.course-tabs{gap:8px}.course-tab{font-size:12px;padding:10px 13px}}
 
 .illustrated-course{grid-template-columns:minmax(125px,29%) minmax(0,1fr);gap:20px;padding:16px;min-height:0;align-items:start}
@@ -107,7 +114,12 @@
      </div>
     </div>
     <div id="my-courses" class="my-courses-empty" role="tabpanel" aria-labelledby="my-courses-tab" hidden>
-     <div class="my-courses-icon">◇</div><h2>Пока здесь пусто</h2><p>Записанные курсы появятся здесь после подключения регистрации и оплаты.</p>
+     <div class="my-courses-icon">◇</div><h2>Пока здесь пусто</h2><p>Записанные курсы появятся здесь после регистрации ученика.</p>
+     <button class="telegram-register-button" id="telegram-register" type="button">Зарегистрироваться через Telegram</button>
+     <a class="telegram-register-link" id="telegram-open-bot" href="#" target="_blank" rel="noopener" hidden>Открыть @OnlineSchoolOgBot</a>
+     <input class="telegram-code-input" id="telegram-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="Код из Telegram" aria-label="Код из Telegram" hidden>
+     <button class="telegram-verify-button" id="telegram-verify" type="button" hidden>Подтвердить и создать аккаунт</button>
+     <p class="telegram-auth-status" id="telegram-auth-status" role="status" aria-live="polite"></p>
     </div>
    </div>
   </section>
@@ -152,6 +164,59 @@
  myTab.addEventListener('click',()=>showCourseTab('mine'));
  showCourseTab('shop');
 
+ const SUPABASE_URL='https://xjxwsapkrrvqrorovxfb.supabase.co';
+ const SUPABASE_PUBLISHABLE_KEY='YOUR_SUPABASE_PUBLISHABLE_KEY';
+ const TELEGRAM_AUTH_API=SUPABASE_URL+'/functions/v1/rapid-worker';
+ const registerButton=document.getElementById('telegram-register');
+ const botLink=document.getElementById('telegram-open-bot');
+ const codeInput=document.getElementById('telegram-code');
+ const verifyButton=document.getElementById('telegram-verify');
+ const authStatus=document.getElementById('telegram-auth-status');
+ const functionHeaders={'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY};
+ function showRegistration(registrationId){
+  registerButton.hidden=false;
+  botLink.href='https://t.me/OnlineSchoolOgBot?start='+encodeURIComponent(registrationId);botLink.hidden=false;
+  codeInput.hidden=false;verifyButton.hidden=false;
+ }
+ registerButton.addEventListener('click',async()=>{
+  registerButton.disabled=true;authStatus.textContent='Создаём ссылку подтверждения…';
+  try{
+   const response=await fetch(TELEGRAM_AUTH_API,{method:'POST',headers:functionHeaders,body:JSON.stringify({action:'start'})});
+   const result=await response.json();
+   if(!response.ok)throw new Error(result.error||'Не удалось начать регистрацию.');
+   sessionStorage.setItem('online-school-telegram-registration',result.registrationId);
+   showRegistration(result.registrationId);
+   authStatus.textContent='Откройте бота, нажмите «Запустить», затем введите код из сообщения бота.';
+  }catch(error){authStatus.textContent=error.message||'Сервис регистрации пока не настроен.';}
+  finally{registerButton.disabled=false;}
+ });
+ verifyButton.addEventListener('click',async()=>{
+  const registrationId=sessionStorage.getItem('online-school-telegram-registration');
+  if(!registrationId){authStatus.textContent='Начните регистрацию заново.';return;}
+  verifyButton.disabled=true;authStatus.textContent='Проверяем код…';
+  try{
+   const response=await fetch(TELEGRAM_AUTH_API,{method:'POST',headers:functionHeaders,body:JSON.stringify({action:'verify',registrationId,code:codeInput.value})});
+   const result=await response.json();
+   if(result.status==='complete'){
+    registerButton.hidden=true;botLink.hidden=true;codeInput.hidden=true;verifyButton.hidden=true;
+    authStatus.textContent='Аккаунт ученика создан'+(result.name?': '+result.name:'')+'.';
+    sessionStorage.removeItem('online-school-telegram-registration');return;
+   }
+   if(result.status==='wrong_code'){authStatus.textContent='Код неверный. Проверьте сообщение и попробуйте ещё раз.';return;}
+   if(result.status==='locked'){authStatus.textContent='Слишком много попыток. Начните регистрацию заново.';sessionStorage.removeItem('online-school-telegram-registration');return;}
+   if(result.status==='awaiting_telegram'){authStatus.textContent='Сначала откройте бота по ссылке и нажмите «Запустить».';return;}
+   if(result.status==='expired'){authStatus.textContent='Ссылка или код истекли. Начните регистрацию заново.';sessionStorage.removeItem('online-school-telegram-registration');return;}
+   if(result.status==='already_complete'){authStatus.textContent='Этот Telegram-аккаунт уже зарегистрирован.';return;}
+   throw new Error(result.error||'Не удалось проверить код.');
+  }catch(error){authStatus.textContent=error.message||'Ошибка проверки кода.';}
+  finally{verifyButton.disabled=false;}
+ });
+ const savedRegistration=sessionStorage.getItem('online-school-telegram-registration');
+ if(savedRegistration){
+  showRegistration(savedRegistration);
+  authStatus.textContent='Продолжите регистрацию в боте, затем введите полученный код.';
+ }
+
 
  const months=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
  let shownMonth=new Date();shownMonth.setDate(1);
@@ -174,3 +239,4 @@
 </script>
 </body>
 </html>
+
