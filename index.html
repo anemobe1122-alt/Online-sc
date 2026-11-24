@@ -100,6 +100,9 @@
 .course-link{margin-top:auto;padding-top:12px;color:#f17a5d;font-size:12px;font-weight:800}
 @media(max-width:980px){.home-course-card{grid-template-columns:125px minmax(0,1fr)}.home-course-art{min-height:190px}}
 @media(max-width:760px){.home-dashboard{padding-top:25px}.home-heading h1{font-size:23px}.today-cards{grid-template-columns:1fr;gap:10px}.today-card{min-height:145px}.access-panel{padding:18px}.access-inner{align-items:flex-start;flex-direction:column}.home-course-grid{grid-template-columns:1fr}.home-course-card{grid-template-columns:112px minmax(0,1fr);padding:12px;gap:12px}.home-course-art{min-height:190px}.home-course-art>span{font-size:48px}.home-course-info h3{font-size:15px}.home-course-info p{font-size:11px}}
+
+/* Keep today's agenda hidden until actual calendar events are configured */
+.today-cards[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -115,19 +118,14 @@
     <div><h1>План на сегодня</h1><div class="home-date"><span class="date-icon">▦</span><span id="today-date">24 ноября</span></div></div>
     <div class="home-clock" id="home-clock"></div>
   </div>
-  <div class="today-cards">
+  <div class="today-cards" id="today-cards" hidden>
     <article class="today-card"><div class="today-meta"><span>Занятия</span><span class="status-muted">План уточняется</span></div><h3>Ближайший вебинар</h3><p>Даты и время появятся после формирования учебных групп.</p><div class="today-footer"><span class="mini-symbol">◷</span> Расписание курса</div></article>
     <article class="today-card"><div class="today-meta"><span>Домашние задания</span><span class="status-muted">Пока пусто</span></div><h3>Задания на проверку</h3><p>Здесь будут отображаться задания и сроки их выполнения.</p><div class="today-footer"><span class="mini-symbol">✎</span> Раздел «Практика»</div></article>
     <article class="today-card"><div class="today-meta"><span>Материалы</span><span class="status-muted">Скоро</span></div><h3>Учебные материалы</h3><p>Конспекты и дополнительные материалы появятся после запуска занятий.</p><div class="today-footer"><span class="mini-symbol">▤</span> Материалы курса</div></article>
   </div>
-  <section class="access-panel">
-    <div class="access-title"><span class="access-dot"></span><h2>Твоя подготовка к ОГЭ</h2></div>
-    <p>Выбери предмет, познакомься с программой и следи за расписанием занятий в личном пространстве.</p>
-    <div class="access-inner"><div><strong>Математика и информатика</strong><span>Групповые онлайн-занятия · подготовка к ОГЭ</span></div><a class="orange-btn" href="#/courses" data-goto="courses">Посмотреть курсы</a></div>
-  </section>
   <div class="home-courses-heading"><h2>Основные курсы</h2><a href="#/courses" data-goto="courses">Все курсы <span>→</span></a></div>
   <div class="home-course-grid">
     <article class="home-course-card"><div class="home-course-art math-art"><span>∑</span><small>ОГЭ · 9 КЛАСС</small></div><div class="home-course-info"><div class="course-tags"><span>Математика</span><span>ОГЭ</span></div><h3>Подготовка к ОГЭ по математике</h3><p>Алгебра, геометрия, разбор типичных ошибок и практика по формату экзамена.</p><div class="course-meta"><span>Формат</span><b>Групповые вебинары</b></div><div class="course-meta"><span>Оплата</span><b>Скоро появится</b></div><a class="course-link" href="#/courses" data-goto="courses">Подробнее <span>↗</span></a></div></article>
     <article class="home-course-card"><div class="home-course-art info-art"><span>⌘</span><small>ОГЭ · 9 КЛАСС</small></div><div class="home-course-info"><div class="course-tags"><span>Информатика</span><span>ОГЭ</span></div><h3>Подготовка к ОГЭ по информатике</h3><p>Логика, алгоритмы, системы счисления и решение практических заданий.</p><div class="course-meta"><span>Формат</span><b>Групповые вебинары</b></div><div class="course-meta"><span>Оплата</span><b>Скоро появится</b></div><a class="course-link" href="#/courses" data-goto="courses">Подробнее <span>↗</span></a></div></article>
   </div>
-</section>>
+</section>
