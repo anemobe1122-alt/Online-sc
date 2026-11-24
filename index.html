@@ -239,19 +239,23 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
  const entryOverlay=document.getElementById('telegram-entry-overlay');
  const entryControls=document.getElementById('telegram-entry-controls');
  const entryAuthKey='online-school-telegram-authenticated';
+ const entryDismissedKey='online-school-telegram-entry-dismissed';
  ['telegram-register','telegram-open-bot','telegram-code','telegram-verify','telegram-auth-status'].forEach(id=>{
   const element=document.getElementById(id);
   if(element)entryControls.appendChild(element);
  });
- // Registration is optional: visitors can dismiss the entry dialog with the close button.
+ // Registration is optional: remember when a visitor dismisses the dialog.
  const closeEntryButton=document.getElementById('telegram-entry-close');
  function closeEntry(){
   entryOverlay.hidden=true;
   document.body.classList.remove('telegram-entry-open');
  }
- if(closeEntryButton)closeEntryButton.addEventListener('click',closeEntry);
+ if(closeEntryButton)closeEntryButton.addEventListener('click',()=>{
+  localStorage.setItem(entryDismissedKey,'true');
+  closeEntry();
+ });
  function requireTelegramLogin(){
-  if(sessionStorage.getItem(entryAuthKey)==='true'){
+  if(sessionStorage.getItem(entryAuthKey)==='true'||localStorage.getItem(entryDismissedKey)==='true'){
    closeEntry();
    return;
   }
