@@ -4,7 +4,7 @@ const decoder = new TextDecoder();
 function b64url(bytes) {
   let binary = "";
   for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/=/g, "").replace(/\\+/g, "-").replace(/\\//g, "_");
+  return btoa(binary).replace(/=/g, "").split("+").join("-").split("/").join("_");
 }
 function fromB64url(value) {
   const s = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -108,7 +108,7 @@ export default {
       try {
         const claims = await verifyTelegramIdToken(tokenData.id_token,env);
         const session = await signValue({sub:String(claims.sub),name:claims.name || "",username:claims.preferred_username || "",picture:claims.picture || "",exp:Date.now()+7*24*60*60*1000},env.SESSION_SECRET);
-        return new Response(null,{status:302,headers:{Location:env.FRONTEND_URL.replace(/\\/$/,"")+"/#session="+encodeURIComponent(session),"Set-Cookie":clearCookie(),"Cache-Control":"no-store"}});
+        return new Response(null,{status:302,headers:{Location:(env.FRONTEND_URL.endsWith("/") ? env.FRONTEND_URL.slice(0,-1) : env.FRONTEND_URL)+"/#session="+encodeURIComponent(session),"Set-Cookie":clearCookie(),"Cache-Control":"no-store"}});
       } catch {
         return new Response("Telegram identity could not be verified. Please try again.",{status:401,headers:{"Set-Cookie":clearCookie()}});
       }
