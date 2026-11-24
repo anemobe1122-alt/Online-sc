@@ -68,7 +68,7 @@ function showPage(route, push=true){
 }
 document.querySelectorAll('[data-route]').forEach(el=>el.addEventListener('click',()=>showPage(el.dataset.route)));
 document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage(el.dataset.goto)}));
-window.addEventListener('popstate',()=>showPage(location.hash.replace(/^#\\//,'')||'home',false));
-showPage(location.hash.replace(/^#\\//,'')||'home',false);
+window.addEventListener('popstate',()=>showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false));
+showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false);
 </script>
 </body></html>
