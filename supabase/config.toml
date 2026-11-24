@@ -1,3 +1,4 @@
-[functions.telegram-registration]
+[functions.rapid-worker]
 verify_jwt = false
+
 
