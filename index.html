@@ -90,6 +90,43 @@
 .telegram-entry-close{position:absolute;top:14px;right:16px;background:transparent;border:0;color:#666;font-size:26px;cursor:pointer;line-height:1;padding:6px}
 .telegram-entry-note{font-size:11px!important;color:#777!important;margin-top:18px!important}
 body.telegram-entry-open{overflow:hidden}
+
+/* Unified near-black theme */
+:root{
+ --bg:#070809;--panel:#111316;--panel2:#191d21;--text:#f5f7fa;
+ --muted:#a0a8b3;--line:#292e35;--accent:#ff704f;
+ color-scheme:dark;
+}
+html{background:#070809;color-scheme:dark}
+body{background:#070809;color:#f5f7fa}
+.sidebar{background:#090a0c;border-color:#252a30}
+.mark{background:#ff704f;color:#090a0c}
+.navitem{color:#e9edf2}
+.navicon{border-color:#343b44}
+.navitem:hover,.navitem.active{background:#171b20;border-color:#343b44}
+.navitem.active .navicon{background:#ff704f;color:#090a0c;border-color:#ff704f}
+.home-course-card,.course-card,.practice-panel,.my-courses-empty{background:#111316;border-color:#292e35}
+.course-tags span,.tag,.calendar-homework b{background:#20252b;color:#e8edf3}
+.calendar-cell,.individual-empty{background:#101317;border-color:#2a3038}
+.calendar-cell.empty{background:transparent;border-color:transparent}
+.month-arrows button,.calendar-mode,.course-tab,.telegram-verify-button{background:#111519;color:#f5f7fa;border-color:#343c46}
+.calendar-mode.active,.course-tab.active{background:#ff704f;border-color:#ff704f;color:#111}
+.calendar-cell.today{border-color:#ff704f;box-shadow:inset 0 0 0 1px #ff704f}
+.telegram-code-input{background:#0c0f12;color:#f5f7fa;border-color:#39424d}
+.telegram-register-button{background:#ff704f;color:#111}
+.telegram-register-button:hover{background:#ff8a6d}
+.telegram-entry-overlay{background:rgba(0,0,0,.86)}
+.telegram-entry-dialog{background:#111519;color:#f5f7fa;border:1px solid #343c46;box-shadow:0 24px 80px #000c}
+.telegram-entry-dialog>p,.telegram-entry-dialog .telegram-auth-status{color:#aab3bf!important}
+.telegram-entry-close{color:#aab3bf}
+.telegram-entry-dialog .telegram-code-input{background:#090c0f;color:#f5f7fa;border-color:#39424d}
+.telegram-entry-dialog .telegram-verify-button{background:#171d23;color:#f5f7fa;border-color:#39424d}
+.telegram-entry-note{color:#89939f!important}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff987f;outline-offset:3px}
+@media(prefers-reduced-motion:no-preference){
+ .navitem,.calendar-mode,.course-tab,.telegram-register-button{transition:background .18s ease,border-color .18s ease,color .18s ease}
+}
+
 </style>
 </head>
 <body>
