@@ -1,0 +1,7 @@
+name = "online-school-telegram-auth"
+main = "worker/index.js"
+compatibility_date = "2026-11-24"
+workers_dev = true
+
+[vars]
+FRONTEND_URL = "https://anemobe1122-alt.github.io"
