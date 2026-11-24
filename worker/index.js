@@ -125,4 +125,3 @@ export default {
     return responseJson({error:"Not found"},404,cors);
   }
 };
-
