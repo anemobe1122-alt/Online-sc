@@ -45,6 +45,12 @@
 .day-modal{position:fixed;inset:0;z-index:500;display:grid;place-items:center;padding:18px}
 .day-modal-backdrop{position:absolute;inset:0;background:#000b;backdrop-filter:blur(3px)}
 .day-modal-card{position:relative;z-index:1;width:min(575px,100%);max-height:min(78vh,760px);overflow:auto;background:#1d1a1a;border:1px solid #373131;border-radius:28px;padding:30px 24px;box-shadow:0 24px 80px #0009}
+.day-modal-backdrop{animation:dayBackdropIn .22s ease-out both}
+.day-modal-card{animation:dayPanelIn .34s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dayBackdropIn{from{opacity:0}to{opacity:1}}
+@keyframes dayPanelIn{from{opacity:0;transform:translateX(72px)}to{opacity:1;transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){.day-modal-backdrop,.day-modal-card{animation:none}}
+
 .day-modal-card h2{font-size:20px;margin:0 45px 26px 0}
 .day-modal-caption{font-size:13px;color:var(--muted);margin:0 0 18px}
 .day-modal-close{position:absolute;right:17px;top:15px;width:40px;height:40px;border:1px solid #393333;border-radius:50%;background:transparent;color:var(--text);font-size:25px;line-height:1}
