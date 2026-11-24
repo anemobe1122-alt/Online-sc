@@ -47,7 +47,7 @@ function corsHeaders(origin, env) {
   return h;
 }
 function responseJson(data, status=200, headers={}) {
-  return new Response(JSON.stringify(data), {status, headers:{"Content-Type":"application/json; charset=utf-8",...headers}});
+  return new Response(JSON.stringify(data), {status, headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",...headers}});
 }
 async function verifyTelegramIdToken(token, env) {
   const parts = token.split(".");
@@ -70,6 +70,60 @@ async function verifyTelegramIdToken(token, env) {
   return claims;
 }
 
+function randomToken(size = 32) {
+  return b64url(crypto.getRandomValues(new Uint8Array(size)));
+}
+async function sha256(value) {
+  return b64url(new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(value))));
+}
+async function sendBotMessage(env, chatId, text) {
+  if (!env.BOT_TOKEN) return;
+  await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({chat_id:chatId,text})
+  });
+}
+async function completeTelegramRegistration(update, env) {
+  const message = update.message;
+  if (!message || message.chat?.type !== "private" || !message.from?.id) return;
+  const chatId = String(message.chat.id);
+  const telegramId = String(message.from.id);
+  const text = String(message.text || "");
+  const start = text.match(/^\/start(?:@\w+)?\s+([A-Za-z0-9_-]{40,60})\s*$/);
+  if (!start) {
+    await sendBotMessage(env, chatId, "Чтобы создать аккаунт ученика, начните регистрацию на сайте Онлайн-школы и перейдите по ссылке сюда.");
+    return;
+  }
+  const registrationHash = await sha256(start[1]);
+  const pending = await env.DB.prepare("SELECT status, expires_at FROM telegram_registrations WHERE id_hash = ?")
+    .bind(registrationHash).first();
+  if (!pending || pending.status !== "pending" || Date.parse(pending.expires_at) <= Date.now()) {
+    await sendBotMessage(env, chatId, "Ссылка регистрации истекла. Вернитесь на сайт и начните регистрацию заново.");
+    return;
+  }
+
+  const firstName = String(message.from.first_name || "Ученик").slice(0, 120);
+  const username = message.from.username ? String(message.from.username).slice(0, 120) : null;
+  const now = new Date().toISOString();
+  await env.DB.batch([
+    env.DB.prepare(`INSERT INTO students (telegram_user_id, first_name, username, created_at)
+      SELECT ?, ?, ?, ? WHERE EXISTS (
+        SELECT 1 FROM telegram_registrations WHERE id_hash = ? AND status = 'pending' AND expires_at > ? AND telegram_user_id IS NULL
+      ) ON CONFLICT(telegram_user_id) DO NOTHING`).bind(telegramId, firstName, username, now, registrationHash, now),
+    env.DB.prepare(`UPDATE telegram_registrations SET status = 'complete', telegram_user_id = ?,
+      student_id = (SELECT id FROM students WHERE telegram_user_id = ?), completed_at = ?
+      WHERE id_hash = ? AND status = 'pending' AND expires_at > ? AND telegram_user_id IS NULL
+      AND EXISTS (SELECT 1 FROM students WHERE telegram_user_id = ?)`).bind(telegramId, telegramId, now, registrationHash, now, telegramId)
+  ]);
+  const completed = await env.DB.prepare("SELECT status FROM telegram_registrations WHERE id_hash = ? AND telegram_user_id = ?")
+    .bind(registrationHash, telegramId).first();
+  if (!completed || completed.status !== "complete") {
+    await sendBotMessage(env, chatId, "Не удалось подтвердить эту заявку. Откройте новую ссылку регистрации на сайте.");
+    return;
+  }
+  await sendBotMessage(env, chatId, "Telegram подтверждён. Аккаунт ученика создан — вернитесь на сайт.");
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -78,6 +132,41 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, {status:204,headers:cors});
     if (url.pathname === "/health") return responseJson({ok:true,service:"telegram-login"});
+    if (url.pathname === "/register/telegram/start" && request.method === "POST") {
+      if (origin !== env.FRONTEND_URL) return responseJson({error:"Origin not allowed"},403,cors);
+      if (!env.DB || !env.BOT_USERNAME || !env.SESSION_SECRET) return responseJson({error:"Registration service is not configured"},503,cors);
+      const registrationId = randomToken();
+      const pollSecret = randomToken();
+      const now = new Date();
+      const expires = new Date(now.getTime() + 10 * 60 * 1000);
+      await env.DB.prepare(`DELETE FROM telegram_registrations WHERE
+        (status = 'pending' AND expires_at <= ?) OR (status = 'complete' AND completed_at <= ?)`)
+        .bind(now.toISOString(), new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()).run();
+      await env.DB.prepare(`INSERT INTO telegram_registrations (id_hash, poll_hash, status, created_at, expires_at)
+        VALUES (?, ?, 'pending', ?, ?)`).bind(await sha256(registrationId), await sha256(pollSecret), now.toISOString(), expires.toISOString()).run();
+      return responseJson({url:`https://t.me/${env.BOT_USERNAME}?start=${registrationId}`,id:registrationId,pollSecret,expiresAt:expires.toISOString()},200,cors);
+    }
+    if (url.pathname === "/register/telegram/status" && request.method === "POST") {
+      if (origin !== env.FRONTEND_URL) return responseJson({error:"Origin not allowed"},403,cors);
+      if (!env.DB || !env.SESSION_SECRET) return responseJson({error:"Registration service is not configured"},503,cors);
+      let body;
+      try { body = await request.json(); } catch { return responseJson({error:"Invalid request"},400,cors); }
+      if (!/^[A-Za-z0-9_-]{40,60}$/.test(body.id || "") || !/^[A-Za-z0-9_-]{40,60}$/.test(body.pollSecret || "")) return responseJson({error:"Invalid registration"},400,cors);
+      const record = await env.DB.prepare(`SELECT r.status, r.expires_at, s.telegram_user_id, s.first_name, s.username
+        FROM telegram_registrations r LEFT JOIN students s ON s.id = r.student_id WHERE r.id_hash = ? AND r.poll_hash = ?`)
+        .bind(await sha256(body.id), await sha256(body.pollSecret)).first();
+      if (!record || (record.status === "pending" && Date.parse(record.expires_at) <= Date.now())) return responseJson({status:"expired"},410,cors);
+      if (record.status !== "complete" || !record.telegram_user_id) return responseJson({status:"pending"},200,cors);
+      const session = await signValue({sub:record.telegram_user_id,name:record.first_name || "",username:record.username || "",picture:"",exp:Date.now()+7*24*60*60*1000},env.SESSION_SECRET);
+      return responseJson({status:"complete",session,user:{id:record.telegram_user_id,name:record.first_name || "",username:record.username || ""}},200,cors);
+    }
+    if (url.pathname === "/telegram/webhook" && request.method === "POST") {
+      if (!env.DB || !env.BOT_TOKEN || !env.WEBHOOK_SECRET || request.headers.get("X-Telegram-Bot-Api-Secret-Token") !== env.WEBHOOK_SECRET) return responseJson({error:"Unauthorized"},401);
+      let update;
+      try { update = await request.json(); } catch { return responseJson({error:"Invalid update"},400); }
+      await completeTelegramRegistration(update,env);
+      return responseJson({ok:true});
+    }
     if (url.pathname === "/auth/login") {
       if (!env.CLIENT_ID || !env.CLIENT_SECRET || !env.SESSION_SECRET || !env.FRONTEND_URL) return responseJson({error:"Server configuration is incomplete"},500);
       const state = b64url(crypto.getRandomValues(new Uint8Array(32)));
@@ -125,3 +214,4 @@ export default {
     return responseJson({error:"Not found"},404,cors);
   }
 };
+
