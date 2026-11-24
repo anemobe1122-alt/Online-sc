@@ -294,7 +294,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   entryOverlay.hidden=false;
   document.body.classList.add('telegram-entry-open');
  }
- requireTelegramLogin();
+ closeEntry(); // Просмотр сайта и расписания открыт всем; Telegram-вход необязателен.
  const reopenEntryButton=document.getElementById('telegram-reopen');
  if(reopenEntryButton)reopenEntryButton.addEventListener('click',()=>{
   if(sessionStorage.getItem(sessionKey)){document.getElementById('telegram-logout').click();return;}
@@ -447,20 +447,35 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
    studentsBox.appendChild(adminRow(label,'Telegram ID: '+item.telegram_user_id+' · '+item.created_at.slice(0,10),[state,toggle]));
   });
  }
+ async function loadPublicLessons(){
+  const response=await fetch(SUPABASE_URL+'/rest/v1/lessons?select=id,subject,topic,description,starts_at&order=starts_at.asc',{
+   headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+SUPABASE_PUBLISHABLE_KEY}
+  });
+  let result=[];try{result=await response.json();}catch{}
+  if(!response.ok)throw new Error((result&&result.message)||'Не удалось загрузить расписание.');
+  lessons=Array.isArray(result)?result:[];
+ }
  async function refreshSchedule(){
-  if(!sessionToken){showScheduleGate('Войдите через Telegram, чтобы открыть расписание. Если доступ ещё не выдан, попросите администратора онлайн-школы подключить его.',true);return;}
   try{
-   viewer=await api('session');
-   document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';
-   if(!viewer.hasAccess&&!viewer.isAdmin){showScheduleGate('Ваш аккаунт зарегистрирован, но доступ к расписанию пока не выдан. Попросите администратора онлайн-школы разрешить доступ.',false);return;}
-   lessons=(await api('lessons.list')).lessons||[];
-   scheduleGate.hidden=true;scheduleContent.hidden=false;adminPanel.hidden=!viewer.isAdmin;
-   document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';
+   await loadPublicLessons();
+   scheduleGate.hidden=true;scheduleContent.hidden=false;adminPanel.hidden=true;
+   viewer=null;
+   if(sessionToken){
+    try{
+     viewer=await api('session');
+     document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';
+     adminPanel.hidden=!viewer.isAdmin;
+     if(viewer.isAdmin)await loadAdminData();
+    }catch(error){
+     if(error.status===401){sessionToken='';sessionStorage.removeItem(sessionKey);viewer=null;document.getElementById('telegram-reopen').textContent='Войти / Регистрация';}
+     else throw error;
+    }
+   }else{
+    document.getElementById('telegram-reopen').textContent='Войти / Регистрация';
+   }
    renderSchedule();
-   if(viewer.isAdmin)await loadAdminData();
   }catch(error){
-   if(error.status===401){sessionToken='';sessionStorage.removeItem(sessionKey);viewer=null;showScheduleGate('Срок входа истёк. Войдите через Telegram, чтобы открыть расписание.',true);return;}
-   if(error.status===403){showScheduleGate('Ваш аккаунт зарегистрирован, но доступ к расписанию пока не выдан. Попросите администратора онлайн-школы разрешить доступ.',false);return;}
+   scheduleGate.hidden=true;scheduleContent.hidden=false;adminPanel.hidden=true;
    scheduleNote.textContent=error.message||'Не удалось загрузить расписание.';
   }
  }
@@ -479,7 +494,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
  });
  (async()=>{window.scheduleReady=true;if(sessionToken){try{viewer=await api('session');document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';}catch{sessionToken='';sessionStorage.removeItem(sessionKey);}}
   if(currentRoute()==='schedule')await refreshSchedule();})();
- setInterval(()=>{if(window.scheduleReady&&currentRoute()==='schedule'&&sessionToken)refreshSchedule();},60000);
+ setInterval(()=>{if(window.scheduleReady&&currentRoute()==='schedule')refreshSchedule();},60000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentRoute()==='schedule'&&sessionToken)refreshSchedule();});
  function updateClock(){const n=new Date(),m=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];document.getElementById('today-date').textContent=n.getDate()+' '+m[n.getMonth()];document.getElementById('home-clock').textContent=n.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}
  updateClock();setInterval(updateClock,60000);
