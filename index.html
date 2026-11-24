@@ -132,6 +132,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
 #telegram-register{color:#fff!important}
 .telegram-entry-dialog .telegram-register-button{color:#fff!important}
 
+
+/* Persistent shortcut for visitors who skipped Telegram registration */
+.telegram-reopen-button{position:fixed;top:16px;right:18px;z-index:80;border:1px solid #ff8a6d;border-radius:22px;background:#ff704f;color:#101214;padding:10px 16px;font-size:12px;font-weight:850;box-shadow:0 5px 22px #0006}
+.telegram-reopen-button:hover{background:#ff8a6d}
+.telegram-reopen-button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-width:760px){.telegram-reopen-button{top:10px;right:10px;padding:9px 12px;font-size:11px}}
+
 </style>
 </head>
 <body>
@@ -145,6 +152,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
  </div>
 </div>
 
+<button type="button" class="telegram-reopen-button" id="telegram-reopen">Войти / Регистрация</button>
 <div class="app">
 <aside class="sidebar">
  <div class="sidebrand"><span class="mark">Э</span><span>ОНЛАЙН-ШКОЛА</span></div>
@@ -263,6 +271,12 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   document.body.classList.add('telegram-entry-open');
  }
  requireTelegramLogin();
+ const reopenEntryButton=document.getElementById('telegram-reopen');
+ if(reopenEntryButton)reopenEntryButton.addEventListener('click',()=>{
+  if(sessionStorage.getItem(entryAuthKey)==='true')return;
+  entryOverlay.hidden=false;
+  document.body.classList.add('telegram-entry-open');
+ });
 
  const SUPABASE_URL='https://xjxwsapkrrvqrorovxfb.supabase.co';
  const SUPABASE_PUBLISHABLE_KEY='YOUR_SUPABASE_PUBLISHABLE_KEY';
