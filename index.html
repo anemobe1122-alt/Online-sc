@@ -139,6 +139,12 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
 .telegram-reopen-button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @media(max-width:760px){.telegram-reopen-button{top:10px;right:10px;padding:9px 12px;font-size:11px}}
 
+.schedule-gate,.admin-panel{border:1px solid var(--line);border-radius:22px;background:var(--panel);padding:22px;margin:0 0 20px}
+.schedule-gate{text-align:center;padding:38px 20px}.schedule-gate h2,.admin-panel h2{margin:0 0 8px}.schedule-gate p{color:var(--muted);margin:0 auto;max-width:560px}
+.schedule-list{display:grid;gap:10px;margin:12px 0}.schedule-item,.admin-row{border:1px solid var(--line);border-radius:15px;background:#111519;padding:14px 16px}.schedule-item{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px}.schedule-item time{color:#ff947a;font-weight:800}.schedule-item h3{font-size:16px;margin:0 0 4px}.schedule-item p{margin:3px 0;color:var(--muted);font-size:13px}.schedule-empty{color:var(--muted);padding:22px 4px}
+.admin-panel{margin-top:28px}.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.admin-panel form{display:grid;gap:10px;margin:13px 0}.admin-panel label{display:grid;gap:5px;color:var(--muted);font-size:12px}.admin-panel input,.admin-panel textarea{width:100%;border:1px solid #39424d;border-radius:10px;background:#090c0f;color:var(--text);padding:10px 12px;font:inherit}.admin-panel textarea{min-height:82px;resize:vertical}.admin-actions{display:flex;gap:8px;flex-wrap:wrap}.primary-action,.secondary-action,.danger-action,.logout-action{border:1px solid #39424d;border-radius:20px;padding:9px 14px;color:var(--text);background:#1b2026;font-weight:750}.primary-action{background:var(--accent);border-color:var(--accent);color:#111}.danger-action{color:#ff9580}.admin-list{display:grid;gap:8px}.admin-row{display:flex;justify-content:space-between;align-items:center;gap:12px}.admin-row strong{display:block}.admin-row small{color:var(--muted)}.access-status{font-size:11px;color:var(--muted)}.access-status.active{color:#8bd6a4}.access-status.inactive{color:#ffb29f}.schedule-toolbar{display:flex;justify-content:flex-end;margin:0 0 12px}.schedule-toolbar[hidden],.admin-panel[hidden],.schedule-gate[hidden],#course-calendar[hidden]{display:none!important}
+@media(max-width:760px){.admin-grid{grid-template-columns:1fr}.schedule-item{grid-template-columns:1fr;gap:4px}.schedule-toolbar{justify-content:stretch}.schedule-toolbar button{width:100%}.admin-row{align-items:flex-start;flex-direction:column}}
+
 </style>
 </head>
 <body>
@@ -203,7 +209,24 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   <section class="page" id="page-schedule" data-page="schedule">
    <div class="page-wrap">
     <div class="calendar-top"><div class="calendar-heading"><h1>Расписание на <span id="calendar-month">ноябрь</span></h1><div class="month-arrows"><button id="month-prev" aria-label="Предыдущий месяц">←</button><button id="month-next" aria-label="Следующий месяц">→</button></div></div><div class="calendar-actions"><button class="calendar-mode" id="individual-mode">Индивидуальный план</button><button class="calendar-mode active" id="course-mode">Расписание курса</button></div></div>
-    <div id="course-calendar"><div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div><div class="calendar-grid" id="calendar-grid"></div><p class="calendar-note">Занятия появятся здесь после публикации расписания.</p></div>
+    <div id="schedule-gate" class="schedule-gate"><h2>Расписание доступно ученикам</h2><p>Войдите через Telegram. Если доступ ещё не выдан, попросите администратора онлайн-школы подключить его.</p><button type="button" class="primary-action" id="schedule-login">Войти через Telegram</button></div>
+    <div id="schedule-content" hidden>
+     <div class="schedule-toolbar"><button type="button" class="logout-action" id="telegram-logout">Выйти из аккаунта</button></div>
+     <div id="course-calendar"><div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="schedule-list" id="schedule-list"></div><p class="calendar-note" id="schedule-note" role="status"></p></div>
+     <section class="admin-panel" id="admin-panel" hidden>
+      <h2>Администрирование</h2><p class="subtle">Изменения сохраняются на сервере. Доступ проверяется при каждом действии.</p>
+      <div class="admin-grid">
+       <section><h3>Занятия</h3>
+        <form id="lesson-form"><input id="lesson-id" type="hidden"><label>Предмет<input id="lesson-subject" maxlength="120" required></label><label>Тема<input id="lesson-topic" maxlength="240" required></label><label>Описание<textarea id="lesson-description" maxlength="5000"></textarea></label><label>Дата и время<input id="lesson-starts-at" type="datetime-local" required></label><div class="admin-actions"><button type="submit" class="primary-action">Сохранить занятие</button><button type="button" class="secondary-action" id="lesson-reset">Очистить форму</button></div><p id="lesson-status" class="subtle" role="status"></p></form>
+        <div id="admin-lessons" class="admin-list"></div>
+       </section>
+       <section><h3>Ученики и доступ</h3>
+        <form id="access-form"><label>Telegram ID ученика<input id="access-telegram-id" inputmode="numeric" pattern="[0-9]{5,20}" maxlength="20" required></label><button type="submit" class="primary-action">Выдать доступ</button><p id="access-status-message" class="subtle" role="status"></p></form>
+        <div id="admin-students" class="admin-list"></div>
+       </section>
+      </div>
+     </section>
+    </div>
     <div class="individual-empty" id="individual-empty" hidden><div style="font-size:34px;color:var(--accent)">▦</div><h3>Индивидуальный план</h3><p>Здесь появятся твои занятия, домашние задания и личные учебные цели после подключения аккаунтов учеников.</p></div>
    </div>
   </section>
@@ -223,6 +246,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   document.querySelectorAll('[data-route]').forEach(el=>{const active=el.dataset.route===route;el.classList.toggle('active',active);el.setAttribute('aria-current',active?'page':'false');});
   if(updateHistory&&currentRoute()!==route)history.pushState({route},'', '#/'+route);
   window.scrollTo(0,0);
+  if(route==='schedule'&&window.scheduleReady)refreshSchedule();
  }
  document.querySelectorAll('[data-route]').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.route,true)));
  document.querySelectorAll('[data-goto]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();showPage(link.dataset.goto,true)}));
@@ -246,7 +270,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
  // This is a client-side access gate; it does not protect static files or API endpoints.
  const entryOverlay=document.getElementById('telegram-entry-overlay');
  const entryControls=document.getElementById('telegram-entry-controls');
- const entryAuthKey='online-school-telegram-authenticated';
+ const sessionKey='online-school-server-session';
  const entryDismissedKey='online-school-telegram-entry-dismissed';
  ['telegram-register','telegram-open-bot','telegram-code','telegram-verify','telegram-auth-status'].forEach(id=>{
   const element=document.getElementById(id);
@@ -263,7 +287,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   closeEntry();
  });
  function requireTelegramLogin(){
-  if(sessionStorage.getItem(entryAuthKey)==='true'||localStorage.getItem(entryDismissedKey)==='true'){
+  if(sessionStorage.getItem(sessionKey)||localStorage.getItem(entryDismissedKey)==='true'){
    closeEntry();
    return;
   }
@@ -273,7 +297,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
  requireTelegramLogin();
  const reopenEntryButton=document.getElementById('telegram-reopen');
  if(reopenEntryButton)reopenEntryButton.addEventListener('click',()=>{
-  if(sessionStorage.getItem(entryAuthKey)==='true')return;
+  if(sessionStorage.getItem(sessionKey)){document.getElementById('telegram-logout').click();return;}
   entryOverlay.hidden=false;
   document.body.classList.add('telegram-entry-open');
  });
@@ -287,6 +311,21 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
  const verifyButton=document.getElementById('telegram-verify');
  const authStatus=document.getElementById('telegram-auth-status');
  const functionHeaders={'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY};
+ let sessionToken=sessionStorage.getItem(sessionKey)||'';
+ let viewer=null;
+ let lessons=[];
+ async function api(action,payload={}){
+  const headers={...functionHeaders};
+  if(sessionToken)headers.Authorization='Bearer '+sessionToken;
+  const response=await fetch(TELEGRAM_AUTH_API,{method:'POST',headers,body:JSON.stringify({action,...payload})});
+  let result={};try{result=await response.json();}catch{}
+  if(!response.ok){const error=new Error(result.error||'Не удалось выполнить запрос.');error.status=response.status;throw error;}
+  return result;
+ }
+ function openLogin(){
+  localStorage.removeItem(entryDismissedKey);
+  entryOverlay.hidden=false;document.body.classList.add('telegram-entry-open');
+ }
  function showRegistration(registrationId){
   registerButton.hidden=false;
   botLink.href='https://t.me/OnlineSchoolOgBot?start='+encodeURIComponent(registrationId);botLink.hidden=false;
@@ -295,9 +334,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
  registerButton.addEventListener('click',async()=>{
   registerButton.disabled=true;authStatus.textContent='Создаём ссылку подтверждения…';
   try{
-   const response=await fetch(TELEGRAM_AUTH_API,{method:'POST',headers:functionHeaders,body:JSON.stringify({action:'start'})});
-   const result=await response.json();
-   if(!response.ok)throw new Error(result.error||'Не удалось начать регистрацию.');
+   const result=await api('start');
    sessionStorage.setItem('online-school-telegram-registration',result.registrationId);
    showRegistration(result.registrationId);
    authStatus.textContent='Откройте бота, нажмите «Запустить», затем введите код из сообщения бота.';
@@ -309,14 +346,16 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   if(!registrationId){authStatus.textContent='Начните регистрацию заново.';return;}
   verifyButton.disabled=true;authStatus.textContent='Проверяем код…';
   try{
-   const response=await fetch(TELEGRAM_AUTH_API,{method:'POST',headers:functionHeaders,body:JSON.stringify({action:'verify',registrationId,code:codeInput.value})});
-   const result=await response.json();
+   const result=await api('verify',{registrationId,code:codeInput.value});
    if(result.status==='complete'){
+    if(!result.session)throw new Error('Сервер не создал сессию. Повторите вход.');
     registerButton.hidden=true;botLink.hidden=true;codeInput.hidden=true;verifyButton.hidden=true;
     authStatus.textContent='Аккаунт ученика создан'+(result.name?': '+result.name:'')+'.';
     sessionStorage.removeItem('online-school-telegram-registration');
-    sessionStorage.setItem(entryAuthKey,'true');
+    sessionToken=result.session;sessionStorage.setItem(sessionKey,sessionToken);
+    viewer=await api('session');
     closeEntry();
+    await refreshSchedule();
     return;
    }
    if(result.status==='wrong_code'){authStatus.textContent='Код неверный. Проверьте сообщение и попробуйте ещё раз.';return;}
@@ -343,17 +382,109 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   const first=new Date(y,m,1),count=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,grid=document.getElementById('calendar-grid');
   grid.innerHTML='';
   for(let i=0;i<offset;i++){const blank=document.createElement('div');blank.className='calendar-cell empty';grid.appendChild(blank);}
-  for(let d=1;d<=count;d++){const cell=document.createElement('div');cell.className='calendar-cell';const now=new Date();if(y===now.getFullYear()&&m===now.getMonth()&&d===now.getDate())cell.classList.add('today');const date=document.createElement('div');date.className='calendar-date';date.textContent=d;cell.appendChild(date);grid.appendChild(cell);}
+  for(let d=1;d<=count;d++){
+   const cell=document.createElement('div');cell.className='calendar-cell';
+   const now=new Date();if(y===now.getFullYear()&&m===now.getMonth()&&d===now.getDate())cell.classList.add('today');
+   const date=document.createElement('div');date.className='calendar-date';date.textContent=d;cell.appendChild(date);
+   lessons.filter(item=>{const start=new Date(item.starts_at);return start.getFullYear()===y&&start.getMonth()===m&&start.getDate()===d;}).forEach(item=>{
+    const event=document.createElement('div');event.className='calendar-event';
+    event.textContent=new Date(item.starts_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' '+item.subject;
+    event.title=item.topic;cell.appendChild(event);
+   });
+   grid.appendChild(cell);
+  }
  }
  document.getElementById('month-prev').addEventListener('click',()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderCalendar();});
  document.getElementById('month-next').addEventListener('click',()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderCalendar();});
  document.getElementById('course-mode').addEventListener('click',()=>{document.getElementById('course-mode').classList.add('active');document.getElementById('individual-mode').classList.remove('active');document.getElementById('course-calendar').hidden=false;document.getElementById('individual-empty').hidden=true;});
  document.getElementById('individual-mode').addEventListener('click',()=>{document.getElementById('individual-mode').classList.add('active');document.getElementById('course-mode').classList.remove('active');document.getElementById('course-calendar').hidden=true;document.getElementById('individual-empty').hidden=false;});
  renderCalendar();
+
+ const scheduleGate=document.getElementById('schedule-gate');
+ const scheduleContent=document.getElementById('schedule-content');
+ const scheduleList=document.getElementById('schedule-list');
+ const scheduleNote=document.getElementById('schedule-note');
+ const adminPanel=document.getElementById('admin-panel');
+ function showScheduleGate(message,login){
+  scheduleContent.hidden=true;scheduleGate.hidden=false;
+  scheduleGate.querySelector('h2').textContent=login?'Расписание доступно ученикам':'Доступ пока не выдан';
+  scheduleGate.querySelector('p').textContent=message;
+  document.getElementById('schedule-login').hidden=!login;
+ }
+ function renderSchedule(){
+  renderCalendar();scheduleList.replaceChildren();
+  if(!lessons.length){scheduleNote.textContent='Предстоящих занятий пока нет.';return;}
+  scheduleNote.textContent='';
+  lessons.forEach(item=>{
+   const row=document.createElement('article');row.className='schedule-item';
+   const time=document.createElement('time');const start=new Date(item.starts_at);time.dateTime=start.toISOString();time.textContent=start.toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+   const details=document.createElement('div');const title=document.createElement('h3');title.textContent=item.subject+' · '+item.topic;details.appendChild(title);
+   if(item.description){const desc=document.createElement('p');desc.textContent=item.description;details.appendChild(desc);}
+   row.append(time,details);scheduleList.appendChild(row);
+  });
+ }
+ function adminRow(title,detail,buttons=[]){
+  const row=document.createElement('div');row.className='admin-row';const text=document.createElement('div');const strong=document.createElement('strong');strong.textContent=title;text.appendChild(strong);
+  if(detail){const small=document.createElement('small');small.textContent=detail;text.appendChild(small);}
+  row.appendChild(text);if(buttons.length){const actions=document.createElement('div');actions.className='admin-actions';buttons.forEach(button=>actions.appendChild(button));row.appendChild(actions);}return row;
+ }
+ function makeButton(label,kind,callback){const button=document.createElement('button');button.type='button';button.className=kind;button.textContent=label;button.addEventListener('click',callback);return button;}
+ async function loadAdminData(){
+  const [studentResult,lessonResult]=await Promise.all([api('admin.students.list'),api('admin.lessons.list')]);
+  const lessonsBox=document.getElementById('admin-lessons');lessonsBox.replaceChildren();
+  (lessonResult.lessons||[]).forEach(item=>{
+   const date=new Date(item.starts_at).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+   lessonsBox.appendChild(adminRow(item.subject+' · '+item.topic,date,[
+    makeButton('Изменить','secondary-action',()=>{document.getElementById('lesson-id').value=item.id;document.getElementById('lesson-subject').value=item.subject;document.getElementById('lesson-topic').value=item.topic;document.getElementById('lesson-description').value=item.description||'';const d=new Date(item.starts_at);document.getElementById('lesson-starts-at').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}),
+    makeButton('Удалить','danger-action',async()=>{if(!confirm('Удалить это занятие?'))return;try{await api('admin.lesson.delete',{id:item.id});await refreshSchedule();}catch(e){scheduleNote.textContent=e.message;}})
+   ]));
+  });
+  const studentsBox=document.getElementById('admin-students');studentsBox.replaceChildren();
+  (studentResult.students||[]).forEach(item=>{
+   const state=document.createElement('span');state.className='access-status '+(item.hasAccess?'active':'inactive');state.textContent=item.hasAccess?'Доступ активен':'Доступ не выдан';
+   const label=item.first_name+(item.telegram_username?' · @'+item.telegram_username:'');
+   const toggle=makeButton(item.hasAccess?'Отозвать доступ':'Выдать доступ',item.hasAccess?'danger-action':'secondary-action',async()=>{try{await api('admin.access.set',{telegram_id:item.telegram_user_id,is_active:!item.hasAccess});await refreshSchedule();}catch(e){document.getElementById('access-status-message').textContent=e.message;}});
+   studentsBox.appendChild(adminRow(label,'Telegram ID: '+item.telegram_user_id+' · '+item.created_at.slice(0,10),[state,toggle]));
+  });
+ }
+ async function refreshSchedule(){
+  if(!sessionToken){showScheduleGate('Войдите через Telegram, чтобы открыть расписание. Если доступ ещё не выдан, попросите администратора онлайн-школы подключить его.',true);return;}
+  try{
+   viewer=await api('session');
+   if(!viewer.hasAccess&&!viewer.isAdmin){showScheduleGate('Ваш аккаунт зарегистрирован, но доступ к расписанию пока не выдан. Попросите администратора онлайн-школы разрешить доступ.',false);return;}
+   lessons=(await api('lessons.list')).lessons||[];
+   scheduleGate.hidden=true;scheduleContent.hidden=false;adminPanel.hidden=!viewer.isAdmin;
+   document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';
+   renderSchedule();
+   if(viewer.isAdmin)await loadAdminData();
+  }catch(error){
+   if(error.status===401){sessionToken='';sessionStorage.removeItem(sessionKey);viewer=null;showScheduleGate('Срок входа истёк. Войдите через Telegram, чтобы открыть расписание.',true);return;}
+   if(error.status===403){showScheduleGate('Ваш аккаунт зарегистрирован, но доступ к расписанию пока не выдан. Попросите администратора онлайн-школы разрешить доступ.',false);return;}
+   scheduleNote.textContent=error.message||'Не удалось загрузить расписание.';
+  }
+ }
+ document.getElementById('schedule-login').addEventListener('click',openLogin);
+ document.getElementById('telegram-logout').addEventListener('click',()=>{sessionToken='';viewer=null;lessons=[];sessionStorage.removeItem(sessionKey);document.getElementById('telegram-reopen').textContent='Войти / Регистрация';showScheduleGate('Войдите через Telegram, чтобы открыть расписание.',true);});
+ document.getElementById('lesson-form').addEventListener('submit',async event=>{
+  event.preventDefault();const status=document.getElementById('lesson-status');status.textContent='Сохраняем…';
+  try{await api('admin.lesson.save',{id:document.getElementById('lesson-id').value||undefined,subject:document.getElementById('lesson-subject').value,topic:document.getElementById('lesson-topic').value,description:document.getElementById('lesson-description').value,starts_at:new Date(document.getElementById('lesson-starts-at').value).toISOString()});event.currentTarget.reset();document.getElementById('lesson-id').value='';status.textContent='Занятие сохранено.';await refreshSchedule();}
+  catch(error){status.textContent=error.message;}
+ });
+ document.getElementById('lesson-reset').addEventListener('click',()=>{document.getElementById('lesson-form').reset();document.getElementById('lesson-id').value='';});
+ document.getElementById('access-form').addEventListener('submit',async event=>{
+  event.preventDefault();const status=document.getElementById('access-status-message');status.textContent='Сохраняем…';
+  try{await api('admin.access.set',{telegram_id:document.getElementById('access-telegram-id').value.trim(),is_active:true});status.textContent='Доступ выдан.';await refreshSchedule();}
+  catch(error){status.textContent=error.message;}
+ });
+ (async()=>{window.scheduleReady=true;if(sessionToken){try{viewer=await api('session');document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';}catch{sessionToken='';sessionStorage.removeItem(sessionKey);}}
+  if(currentRoute()==='schedule')await refreshSchedule();})();
+ setInterval(()=>{if(window.scheduleReady&&currentRoute()==='schedule'&&sessionToken)refreshSchedule();},60000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentRoute()==='schedule'&&sessionToken)refreshSchedule();});
  function updateClock(){const n=new Date(),m=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];document.getElementById('today-date').textContent=n.getDate()+' '+m[n.getMonth()];document.getElementById('home-clock').textContent=n.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}
  updateClock();setInterval(updateClock,60000);
 })();
 </script>
 </body>
 </html>
+
 

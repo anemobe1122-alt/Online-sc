@@ -21,6 +21,42 @@ function randomToken(bytes = 24) {
   return btoa(binary).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
+function base64UrlEncode(value: string) {
+  return btoa(value).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+function base64UrlDecode(value: string) {
+  const padded = value.replace(/-/g, "+").replace(/_/g, "/");
+  return atob(padded + "=".repeat((4 - padded.length % 4) % 4));
+}
+
+async function signSession(payload: Record<string, unknown>, secret: string) {
+  const body = base64UrlEncode(JSON.stringify(payload));
+  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
+  const encoded = Array.from(new Uint8Array(signature), (byte) => String.fromCharCode(byte)).join("");
+  return `${body}.${base64UrlEncode(encoded)}`;
+}
+
+async function verifySession(token: string, secret: string) {
+  try {
+    const [body, signature, extra] = token.split(".");
+    if (!body || !signature || extra) return null;
+    const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+    const signatureBytes = Uint8Array.from(base64UrlDecode(signature), (char) => char.charCodeAt(0));
+    if (!await crypto.subtle.verify("HMAC", key, signatureBytes, encoder.encode(body))) return null;
+    const payload = JSON.parse(base64UrlDecode(body)) as Record<string, unknown>;
+    if (typeof payload.exp !== "number" || payload.exp <= Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function validTelegramId(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9]{5,20}$/.test(value);
+}
+
 function makeCode() {
   const value = new Uint32Array(1);
   crypto.getRandomValues(value);
@@ -159,7 +195,125 @@ Deno.serve(async (request) => {
         p_code_hash: await codeHash(registrationId, code, pepper),
       });
       if (error) throw error;
+      if (data?.status === "complete" && data.student_id) {
+        const { data: student, error: studentError } = await db.from("students")
+          .select("id,telegram_user_id").eq("id", data.student_id).maybeSingle();
+        if (studentError) throw studentError;
+        if (student && validTelegramId(student.telegram_user_id)) {
+          const token = await signSession({
+            sub: student.id,
+            telegram_id: student.telegram_user_id,
+            exp: Date.now() + 12 * 60 * 60 * 1000,
+          }, pepper);
+          return json({ ...data, session: token });
+        }
+      }
       return json(data);
+    }
+
+    const authorization = request.headers.get("Authorization") || "";
+    const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+    const session = await verifySession(bearer, Deno.env.get("TELEGRAM_CODE_PEPPER") || "");
+    const telegramId = session?.telegram_id;
+    const studentId = session?.sub;
+    if (!validTelegramId(telegramId) || typeof studentId !== "string") {
+      return json({ error: "Требуется войти через Telegram." }, 401);
+    }
+
+    const { data: student, error: studentError } = await db.from("students")
+      .select("id,telegram_user_id,telegram_username,first_name")
+      .eq("id", studentId).eq("telegram_user_id", telegramId).maybeSingle();
+    if (studentError) throw studentError;
+    if (!student) return json({ error: "Сессия недействительна. Войдите снова." }, 401);
+
+    const [{ data: admin, error: adminError }, { data: access, error: accessError }] = await Promise.all([
+      db.from("admins").select("telegram_id").eq("telegram_id", student.telegram_user_id).maybeSingle(),
+      db.from("student_access").select("is_active").eq("telegram_id", student.telegram_user_id).maybeSingle(),
+    ]);
+    if (adminError) throw adminError;
+    if (accessError) throw accessError;
+    const isAdmin = !!admin;
+    const hasAccess = access?.is_active === true;
+
+    if (action === "session" || action === "me") {
+      return json({ authenticated: true, name: student.first_name, isAdmin, hasAccess });
+    }
+    if (action === "logout") return json({ ok: true });
+
+    if (action === "lessons.list") {
+      if (!isAdmin && !hasAccess) return json({ error: "schedule_access_required" }, 403);
+      const { data: lessons, error } = await db.from("lessons")
+        .select("id,subject,topic,description,starts_at")
+        .gte("starts_at", new Date().toISOString()).order("starts_at", { ascending: true });
+      if (error) throw error;
+      return json({ lessons: lessons || [] });
+    }
+
+    if (!action || !String(action).startsWith("admin.")) return json({ error: "Not found" }, 404);
+    if (!isAdmin) return json({ error: "admin_required" }, 403);
+
+    if (action === "admin.lessons.list") {
+      const { data: allLessons, error } = await db.from("lessons")
+        .select("id,subject,topic,description,starts_at").order("starts_at", { ascending: true });
+      if (error) throw error;
+      return json({ lessons: allLessons || [] });
+    }
+
+    if (action === "admin.students.list") {
+      const { data: students, error } = await db.from("students")
+        .select("id,telegram_user_id,telegram_username,first_name,created_at").order("created_at", { ascending: true });
+      if (error) throw error;
+      const ids = (students || []).map((item) => item.telegram_user_id);
+      const { data: accessRows, error: accessReadError } = ids.length
+        ? await db.from("student_access").select("telegram_id,is_active").in("telegram_id", ids)
+        : { data: [], error: null };
+      if (accessReadError) throw accessReadError;
+      const accessById = new Map((accessRows || []).map((item) => [item.telegram_id, item.is_active]));
+      return json({ students: (students || []).map((item) => ({ ...item, hasAccess: accessById.get(item.telegram_user_id) === true })) });
+    }
+
+    if (action === "admin.lesson.save") {
+      const subject = String(body.subject || "").trim();
+      const topic = String(body.topic || "").trim();
+      const description = String(body.description || "").trim();
+      const startsAt = String(body.starts_at || "");
+      if (!subject || subject.length > 120 || !topic || topic.length > 240 || description.length > 5000 || !Number.isFinite(Date.parse(startsAt))) {
+        return json({ error: "Заполните предмет, тему и корректные дату и время." }, 400);
+      }
+      const values = { subject, topic, description, starts_at: new Date(startsAt).toISOString(), updated_at: new Date().toISOString() };
+      const lessonId = Number(body.id);
+      const result = Number.isSafeInteger(lessonId) && lessonId > 0
+        ? await db.from("lessons").update(values).eq("id", lessonId).select("id,subject,topic,description,starts_at").maybeSingle()
+        : await db.from("lessons").insert(values).select("id,subject,topic,description,starts_at").single();
+      if (result.error) throw result.error;
+      if (!result.data) return json({ error: "Занятие не найдено." }, 404);
+      return json({ lesson: result.data });
+    }
+
+    if (action === "admin.lesson.delete") {
+      const lessonId = Number(body.id);
+      if (!Number.isSafeInteger(lessonId) || lessonId < 1) return json({ error: "Некорректный ID занятия." }, 400);
+      const { error } = await db.from("lessons").delete().eq("id", lessonId);
+      if (error) throw error;
+      return json({ ok: true });
+    }
+
+    if (action === "admin.access.set") {
+      const targetId = typeof body.telegram_id === "number" ? String(body.telegram_id) : String(body.telegram_id || "");
+      if (!validTelegramId(targetId) || typeof body.is_active !== "boolean") {
+        return json({ error: "Укажите числовой Telegram ID и статус доступа." }, 400);
+      }
+      const { data: target, error: targetError } = await db.from("students")
+        .select("telegram_user_id,telegram_username").eq("telegram_user_id", targetId).maybeSingle();
+      if (targetError) throw targetError;
+      if (!target) return json({ error: "Ученик с таким Telegram ID не зарегистрирован." }, 404);
+      const { error } = await db.from("student_access").upsert({
+        telegram_id: target.telegram_user_id,
+        username: target.telegram_username,
+        is_active: body.is_active,
+      }, { onConflict: "telegram_id" });
+      if (error) throw error;
+      return json({ ok: true, telegram_id: target.telegram_user_id, is_active: body.is_active });
     }
 
     return json({ error: "Not found" }, 404);
@@ -172,4 +326,5 @@ Deno.serve(async (request) => {
 function envSecret(name: string) {
   return Deno.env.get(name);
 }
+
 
