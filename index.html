@@ -73,9 +73,36 @@
 .course-info{display:flex;flex-direction:column;min-width:0}
 .illustrated-course .course-foot{grid-column:2}
 @media(max-width:760px){.illustrated-course{grid-template-columns:96px minmax(0,1fr);gap:12px;padding:11px;min-height:0}.course-art{height:150px;min-height:150px}.course-art svg{max-height:150px}.info-course-art svg{min-height:0}.illustrated-course .course-foot{grid-column:1/-1}}
+
+/* Telegram registration entrance dialog */
+.telegram-entry-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}
+.telegram-entry-overlay[hidden]{display:none!important}
+.telegram-entry-dialog{position:relative;width:min(440px,100%);max-height:calc(100dvh - 40px);overflow-y:auto;background:#fff;color:#181818;border-radius:28px;padding:32px 25px 28px;text-align:center;box-shadow:0 24px 80px #0007}
+.telegram-entry-dialog h2{font-size:23px;margin:0 30px 12px;font-weight:800}
+.telegram-entry-dialog>p{font-size:13px;line-height:1.5;color:#555;margin:0 auto 15px;max-width:340px}
+.telegram-entry-dialog .telegram-register-button{display:block;width:100%;background:#229ed9;border-radius:28px;font-size:14px;margin:20px 0 0;padding:14px 12px}
+.telegram-entry-dialog .telegram-register-button[hidden],.telegram-entry-dialog [hidden]{display:none!important}
+.telegram-entry-dialog .telegram-register-button:hover{background:#1688c0}
+.telegram-entry-dialog .telegram-register-link{display:block;margin-top:15px;color:#1688c0}
+.telegram-entry-dialog .telegram-code-input{background:#f5f6f8;color:#181818;border-color:#ddd}
+.telegram-entry-dialog .telegram-verify-button{color:#181818;border-color:#ddd}
+.telegram-entry-dialog .telegram-auth-status{color:#555!important}
+.telegram-entry-close{position:absolute;top:14px;right:16px;background:transparent;border:0;color:#666;font-size:26px;cursor:pointer;line-height:1;padding:6px}
+.telegram-entry-note{font-size:11px!important;color:#777!important;margin-top:18px!important}
+body.telegram-entry-open{overflow:hidden}
 </style>
 </head>
 <body>
+<div id="telegram-entry-overlay" class="telegram-entry-overlay" hidden>
+ <div class="telegram-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="telegram-entry-title">
+  <button type="button" class="telegram-entry-close" id="telegram-entry-close" aria-label="Закрыть окно">×</button>
+  <h2 id="telegram-entry-title">Вход в аккаунт</h2>
+  <p>Зарегистрируйтесь через Telegram, чтобы пользоваться личным кабинетом онлайн-школы.</p>
+  <div id="telegram-entry-controls"></div>
+  <p class="telegram-entry-note">Продолжая, вы соглашаетесь с обработкой данных, необходимых для регистрации.</p>
+ </div>
+</div>
+
 <div class="app">
 <aside class="sidebar">
  <div class="sidebrand"><span class="mark">Э</span><span>ОНЛАЙН-ШКОЛА</span></div>
@@ -163,6 +190,18 @@
  shopTab.addEventListener('click',()=>showCourseTab('shop'));
  myTab.addEventListener('click',()=>showCourseTab('mine'));
  showCourseTab('shop');
+
+
+ // Display the existing Telegram registration UI in a dialog on each page load.
+ const entryOverlay=document.getElementById('telegram-entry-overlay');
+ const entryControls=document.getElementById('telegram-entry-controls');
+ ['telegram-register','telegram-open-bot','telegram-code','telegram-verify','telegram-auth-status'].forEach(id=>{
+  const element=document.getElementById(id);
+  if(element)entryControls.appendChild(element);
+ });
+ function closeEntry(){entryOverlay.hidden=true;document.body.classList.remove('telegram-entry-open');}
+ document.getElementById('telegram-entry-close').addEventListener('click',closeEntry);
+ entryOverlay.hidden=false;document.body.classList.add('telegram-entry-open');
 
  const SUPABASE_URL='https://xjxwsapkrrvqrorovxfb.supabase.co';
  const SUPABASE_PUBLISHABLE_KEY='YOUR_SUPABASE_PUBLISHABLE_KEY';
