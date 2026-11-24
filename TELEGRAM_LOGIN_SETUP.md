@@ -20,9 +20,10 @@
 ```powershell
 npx supabase login
 npx supabase link --project-ref <PROJECT_REF>
-npx supabase db push
 npx supabase functions deploy rapid-worker
 ```
+
+SQL-миграции запускайте по порядку в Supabase SQL Editor для нового проекта. В подключённом проекте `school` обе схемы уже присутствуют, а миграция расписания применена.
 
 У функции оставлена `verify_jwt = false`: она самостоятельно проверяет Telegram webhook secret и подписанную сессию для защищённых запросов. Не меняйте настроенный Telegram webhook и его секрет при обычном обновлении кода.
 
