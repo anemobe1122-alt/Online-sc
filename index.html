@@ -451,6 +451,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   if(!sessionToken){showScheduleGate('Войдите через Telegram, чтобы открыть расписание. Если доступ ещё не выдан, попросите администратора онлайн-школы подключить его.',true);return;}
   try{
    viewer=await api('session');
+   document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';
    if(!viewer.hasAccess&&!viewer.isAdmin){showScheduleGate('Ваш аккаунт зарегистрирован, но доступ к расписанию пока не выдан. Попросите администратора онлайн-школы разрешить доступ.',false);return;}
    lessons=(await api('lessons.list')).lessons||[];
    scheduleGate.hidden=true;scheduleContent.hidden=false;adminPanel.hidden=!viewer.isAdmin;
