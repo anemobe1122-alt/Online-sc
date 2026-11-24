@@ -192,16 +192,31 @@ body.telegram-entry-open{overflow:hidden}
  showCourseTab('shop');
 
 
- // Display the existing Telegram registration UI in a dialog on each page load.
+ // Require Telegram registration before showing the school dashboard.
+ // This is a client-side access gate; it does not protect static files or API endpoints.
  const entryOverlay=document.getElementById('telegram-entry-overlay');
  const entryControls=document.getElementById('telegram-entry-controls');
+ const entryAuthKey='online-school-telegram-authenticated';
  ['telegram-register','telegram-open-bot','telegram-code','telegram-verify','telegram-auth-status'].forEach(id=>{
   const element=document.getElementById(id);
   if(element)entryControls.appendChild(element);
  });
- function closeEntry(){entryOverlay.hidden=true;document.body.classList.remove('telegram-entry-open');}
- document.getElementById('telegram-entry-close').addEventListener('click',closeEntry);
- entryOverlay.hidden=false;document.body.classList.add('telegram-entry-open');
+ // The login dialog cannot be dismissed before Telegram verification succeeds.
+ const closeEntryButton=document.getElementById('telegram-entry-close');
+ if(closeEntryButton)closeEntryButton.hidden=true;
+ function closeEntry(){
+  entryOverlay.hidden=true;
+  document.body.classList.remove('telegram-entry-open');
+ }
+ function requireTelegramLogin(){
+  if(sessionStorage.getItem(entryAuthKey)==='true'){
+   closeEntry();
+   return;
+  }
+  entryOverlay.hidden=false;
+  document.body.classList.add('telegram-entry-open');
+ }
+ requireTelegramLogin();
 
  const SUPABASE_URL='https://xjxwsapkrrvqrorovxfb.supabase.co';
  const SUPABASE_PUBLISHABLE_KEY='YOUR_SUPABASE_PUBLISHABLE_KEY';
@@ -239,7 +254,10 @@ body.telegram-entry-open{overflow:hidden}
    if(result.status==='complete'){
     registerButton.hidden=true;botLink.hidden=true;codeInput.hidden=true;verifyButton.hidden=true;
     authStatus.textContent='Аккаунт ученика создан'+(result.name?': '+result.name:'')+'.';
-    sessionStorage.removeItem('online-school-telegram-registration');return;
+    sessionStorage.removeItem('online-school-telegram-registration');
+    sessionStorage.setItem(entryAuthKey,'true');
+    closeEntry();
+    return;
    }
    if(result.status==='wrong_code'){authStatus.textContent='Код неверный. Проверьте сообщение и попробуйте ещё раз.';return;}
    if(result.status==='locked'){authStatus.textContent='Слишком много попыток. Начните регистрацию заново.';sessionStorage.removeItem('online-school-telegram-registration');return;}
