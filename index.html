@@ -243,13 +243,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   const element=document.getElementById(id);
   if(element)entryControls.appendChild(element);
  });
- // The login dialog cannot be dismissed before Telegram verification succeeds.
+ // Registration is optional: visitors can dismiss the entry dialog with the close button.
  const closeEntryButton=document.getElementById('telegram-entry-close');
- if(closeEntryButton)closeEntryButton.hidden=true;
  function closeEntry(){
   entryOverlay.hidden=true;
   document.body.classList.remove('telegram-entry-open');
  }
+ if(closeEntryButton)closeEntryButton.addEventListener('click',closeEntry);
  function requireTelegramLogin(){
   if(sessionStorage.getItem(entryAuthKey)==='true'){
    closeEntry();
