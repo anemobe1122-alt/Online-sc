@@ -1,56 +1,48 @@
-# Telegram registration for students
+# Регистрация учеников через Telegram и Supabase
 
-The site stays on GitHub Pages. The Telegram registration runs in a Cloudflare Worker and saves student accounts in Cloudflare D1. The existing pages and the existing `/auth/*` Worker routes are left in place. The current site has no registration or login form wired into its HTML.
+Сайт остаётся на GitHub Pages. Supabase Edge Function принимает webhook Telegram, выдаёт одноразовый код и после его проверки создаёт запись в таблице `students`. Cloudflare Worker для этой регистрации не используется.
 
-## What a student does
+## Сценарий ученика
 
-1. On the site, open **Курсы → Мои курсы** and select **Зарегистрироваться через Telegram**.
-2. Open the one-time link to `@OnlineSchoolOgBot` and press **Запустить**.
-3. The bot webhook confirms the Telegram account. The Worker creates (or recognizes) the student row in D1 and the site saves a signed, seven-day session in `sessionStorage`.
+1. На сайте открыть **Курсы → Мои курсы** и нажать **Зарегистрироваться через Telegram**.
+2. Перейти в `@OnlineSchoolOgBot` по ссылке на сайте и нажать **Запустить**. Telegram не позволяет боту первым написать пользователю по одному только `@username`.
+3. Получить шестизначный код в личном чате с ботом, ввести его на сайте. Код действует 5 минут; после 5 неверных попыток заявка блокируется.
+4. После проверки Supabase создаёт или находит запись ученика по Telegram ID. Код в базе хранится только в виде HMAC-хеша.
 
-Registration links expire after 10 minutes. The browser keeps a separate polling secret; only its hash is stored in D1. The webhook uses Telegram's secret-token header. Keep all three secrets below out of GitHub and browser code.
+## Подготовка Supabase
 
-## Cloudflare setup (required before registration works)
-
-Run these commands from the repository root with Wrangler logged in:
-
-```powershell
-npx wrangler d1 create online-school-students
-```
-
-Copy the returned database ID into `database_id` in `wrangler.toml`, replacing `REPLACE_WITH_DATABASE_ID`. Then create the tables and deploy:
+Нужен Supabase project. Выполнить миграцию `supabase/migrations/0001_telegram_student_registration.sql` через SQL Editor в Supabase Dashboard. Затем подключить каталог репозитория к проекту и развернуть функцию:
 
 ```powershell
-npx wrangler d1 migrations apply online-school-students --remote
-npx wrangler deploy
-npx wrangler secret put BOT_TOKEN
-npx wrangler secret put WEBHOOK_SECRET
-npx wrangler secret put SESSION_SECRET
-npx wrangler deploy
+npx supabase login
+npx supabase link --project-ref <PROJECT_REF>
+npx supabase functions deploy telegram-registration
 ```
 
-The first deploy creates the Worker so Wrangler can attach its secrets. Wrangler prompts for each secret. `BOT_TOKEN` is the token for `@OnlineSchoolOgBot` from BotFather. Make `WEBHOOK_SECRET` a random string containing only letters, digits, `_` or `-` (at least 32 characters). Make `SESSION_SECRET` a different random secret with at least 32 bytes. Do not reuse the bot token as either secret. The last deploy publishes the configured Worker version.
+Добавить в Supabase → Edge Functions → Secrets:
 
-After deployment, note the Worker URL Wrangler prints, for example `https://online-school-telegram-auth.<your-subdomain>.workers.dev`. Set the bot webhook using the same Worker URL and webhook secret. In PowerShell, with the bot token and webhook secret held in environment variables:
+- `TELEGRAM_BOT_TOKEN` — токен `@OnlineSchoolOgBot` из BotFather.
+- `TELEGRAM_WEBHOOK_SECRET` — случайная строка только из букв, цифр, `_` и `-`, минимум 32 символа.
+- `TELEGRAM_CODE_PEPPER` — отдельный случайный секрет минимум 32 байта.
+- `TELEGRAM_BOT_USERNAME` — `OnlineSchoolOgBot`.
 
-```powershell
-$body = @{
-  url = "https://online-school-telegram-auth.<your-subdomain>.workers.dev/telegram/webhook"
-  secret_token = $env:TELEGRAM_WEBHOOK_SECRET
-  allowed_updates = @("message")
-} | ConvertTo-Json -Compress
-Invoke-RestMethod -Method Post -Uri "https://api.telegram.org/bot$($env:TELEGRAM_BOT_TOKEN)/setWebhook" -ContentType "application/json" -Body $body
+Supabase предоставляет Edge Function URL и секретный ключ для server-side запросов. Они используются только в функции; ключ обхода RLS нельзя помещать в сайт или GitHub.
+
+Развернуть функцию `telegram-registration`, затем установить Telegram webhook на:
+
+```text
+https://<PROJECT_REF>.supabase.co/functions/v1/telegram-registration
 ```
 
-The result should contain `"ok": true`. Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET` in the PowerShell session from your secret store before running that command. Do not paste real values into this file or commit them.
+При установке webhook передать `secret_token` равный `TELEGRAM_WEBHOOK_SECRET`. В webhook для Telegram должна быть включена передача `message` updates.
 
-## Connect the GitHub Pages site
+## Подключение GitHub Pages
 
-Replace `YOUR_SUBDOMAIN` in the `TELEGRAM_AUTH_API` constant in `index.html` with the Worker subdomain Wrangler assigned. The site is published by the existing GitHub Pages workflow; pushing this HTML change to `main` will publish it there. The expected project Pages URL is `https://anemobe1122-alt.github.io/Online-sc/`; `FRONTEND_URL` in `wrangler.toml` must remain the origin only (`https://anemobe1122-alt.github.io`) because browsers do not send a path in the `Origin` header.
+В `index.html` заменить значения `YOUR_PROJECT_REF` и `YOUR_SUPABASE_PUBLISHABLE_KEY` в константах `SUPABASE_URL` и `SUPABASE_PUBLISHABLE_KEY`. Publishable key можно помещать в браузер; secret/service-role key — нельзя. `supabase/config.toml` отключает стандартную JWT-проверку только для этой функции: вызов webhook проверяет отдельный секрет Telegram, а публичные действия ограничены созданием заявки и проверкой кода.
 
-Check `https://<your-worker-host>/health` returns `{"ok":true,"service":"telegram-login"}`. If Cloudflare assigns a different Worker host, use that exact host both in the bot webhook URL and the site's `TELEGRAM_AUTH_API` value.
+После публикации через существующий workflow GitHub Pages кнопка появится в разделе «Мои курсы». Проверить регистрацию тестовым Telegram-аккаунтом: код должен прийти от бота, а в `students` должна появиться одна строка с Telegram ID.
 
-## Student data
+## Данные и доступ
 
-The `students` table stores Telegram user ID, first name, username (when public), and account creation time. Do not add school records or sensitive student information here without first defining the required access controls, retention, and privacy notice. This minimal registration stores no course progress or homework.
+Таблица `students` содержит Telegram ID, username (если он установлен), имя и дату создания записи. Таблицы закрыты RLS без публичных политик. Код подтверждения ограничен сроком действия и числом попыток; создание записи ученика и пометка заявки как завершённой выполняются одной SQL-функцией.
 

@@ -5,11 +5,4 @@ workers_dev = true
 
 [vars]
 FRONTEND_URL = "https://anemobe1122-alt.github.io"
-BOT_USERNAME = "OnlineSchoolOgBot"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "online-school-students"
-database_id = "REPLACE_WITH_DATABASE_ID"
-migrations_dir = "migrations"
 
