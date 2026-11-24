@@ -1,48 +1,43 @@
-# Регистрация учеников через Telegram и Supabase
+# Telegram-регистрация, расписание и администрирование
 
-Сайт остаётся на GitHub Pages. Supabase Edge Function принимает webhook Telegram, выдаёт одноразовый код и после его проверки создаёт запись в таблице `students`. Cloudflare Worker для этой регистрации не используется.
+Сайт публикуется на GitHub Pages. Функция Supabase `rapid-worker` одновременно принимает Telegram webhook и обрабатывает регистрацию, серверные сессии, расписание и административные действия. Отдельная Cloudflare Worker в `worker/` не участвует в этом потоке.
 
-## Сценарий ученика
+## Регистрация и сессия
 
-1. На сайте открыть **Курсы → Мои курсы** и нажать **Зарегистрироваться через Telegram**.
-2. Перейти в `@OnlineSchoolOgBot` по ссылке на сайте и нажать **Запустить**. Telegram не позволяет боту первым написать пользователю по одному только `@username`.
-3. Получить шестизначный код в личном чате с ботом, ввести его на сайте. Код действует 5 минут; после 5 неверных попыток заявка блокируется.
-4. После проверки Supabase создаёт или находит запись ученика по Telegram ID. Код в базе хранится только в виде HMAC-хеша.
+1. Ученик начинает регистрацию на сайте и открывает персональную ссылку на `@OnlineSchoolOgBot`.
+2. Бот получает числовой Telegram ID из `message.from.id`, отправляет шестизначный код в личный чат.
+3. После проверки кода через `verify_telegram_registration` функция выдаёт подписанную на сервере сессию сроком на 12 часов. Браузер передаёт её как Bearer-токен; сервер проверяет подпись, срок действия и соответствие ID записи `students` при каждом запросе.
 
-## Подготовка Supabase
+## База данных и Edge Function
 
-Нужен Supabase project. Выполнить миграцию `supabase/migrations/0001_telegram_student_registration.sql` через SQL Editor в Supabase Dashboard. Затем подключить каталог репозитория к проекту и развернуть функцию:
+Миграции:
+
+- `supabase/migrations/0001_telegram_student_registration.sql` — таблицы регистрации, `students` и закрытая SQL-функция проверки кода.
+- `supabase/migrations/0002_schedule_admin_access.sql` — закрытые права для браузерных ролей, доступ только сервисной роли, связь доступа с зарегистрированным учеником и индекс расписания.
+
+Для развёртывания из репозитория:
 
 ```powershell
 npx supabase login
 npx supabase link --project-ref <PROJECT_REF>
-npx supabase functions deploy telegram-registration
+npx supabase db push
+npx supabase functions deploy rapid-worker
 ```
 
-Добавить в Supabase → Edge Functions → Secrets:
+У функции оставлена `verify_jwt = false`: она самостоятельно проверяет Telegram webhook secret и подписанную сессию для защищённых запросов. Не меняйте настроенный Telegram webhook и его секрет при обычном обновлении кода.
 
-- `TELEGRAM_BOT_TOKEN` — токен `@OnlineSchoolOgBot` из BotFather.
-- `TELEGRAM_WEBHOOK_SECRET` — случайная строка только из букв, цифр, `_` и `-`, минимум 32 символа.
-- `TELEGRAM_CODE_PEPPER` — отдельный случайный секрет минимум 32 байта.
-- `TELEGRAM_BOT_USERNAME` — `OnlineSchoolOgBot`.
+Существующие Edge Function secrets остаются серверными: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_CODE_PEPPER`, `TELEGRAM_BOT_USERNAME`. Новые секреты не нужны: `TELEGRAM_CODE_PEPPER` используется также для HMAC-подписи сессии. Ни один из этих секретов нельзя помещать в HTML или GitHub.
 
-Supabase предоставляет Edge Function URL и секретный ключ для server-side запросов. Они используются только в функции; ключ обхода RLS нельзя помещать в сайт или GitHub.
+## Администрирование и доступ учеников
 
-Развернуть функцию `telegram-registration`, затем установить Telegram webhook на:
+- Администратор определяется только записью в `admins.telegram_id`, совпадающей с ID подтверждённого Telegram-пользователя.
+- Ученик получает расписание только при `student_access.is_active = true` для его числового `telegram_id`.
+- Администратор может создавать, редактировать и удалять занятия в `lessons`, просматривать зарегистрированных учеников и выдавать или отзывать доступ.
+- Все эти операции проходят через `rapid-worker`; SQL-таблицы не имеют публичных RLS-политик или прав записи для `anon` и `authenticated`.
 
-```text
-https://<PROJECT_REF>.supabase.co/functions/v1/telegram-registration
-```
+Первая административная запись должна быть добавлена доверенным владельцем в `admins.telegram_id` после регистрации этого Telegram-аккаунта. Сейчас в проекте уже есть одна такая запись.
 
-При установке webhook передать `secret_token` равный `TELEGRAM_WEBHOOK_SECRET`. В webhook для Telegram должна быть включена передача `message` updates.
+## GitHub Pages
 
-## Подключение GitHub Pages
-
-В `index.html` заменить значения `YOUR_PROJECT_REF` и `YOUR_SUPABASE_PUBLISHABLE_KEY` в константах `SUPABASE_URL` и `SUPABASE_PUBLISHABLE_KEY`. Publishable key можно помещать в браузер; secret/service-role key — нельзя. `supabase/config.toml` отключает стандартную JWT-проверку только для этой функции: вызов webhook проверяет отдельный секрет Telegram, а публичные действия ограничены созданием заявки и проверкой кода.
-
-После публикации через существующий workflow GitHub Pages кнопка появится в разделе «Мои курсы». Проверить регистрацию тестовым Telegram-аккаунтом: код должен прийти от бота, а в `students` должна появиться одна строка с Telegram ID.
-
-## Данные и доступ
-
-Таблица `students` содержит Telegram ID, username (если он установлен), имя и дату создания записи. Таблицы закрыты RLS без публичных политик. Код подтверждения ограничен сроком действия и числом попыток; создание записи ученика и пометка заявки как завершённой выполняются одной SQL-функцией.
+Публичный Supabase URL и publishable key находятся в `index.html`; они не дают права обходить RLS. Секретный ключ Supabase и токен бота остаются только в Edge Function secrets. Сайт использует существующий адрес `https://xjxwsapkrrvqrorovxfb.supabase.co/functions/v1/rapid-worker`.
 
