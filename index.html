@@ -120,26 +120,7 @@ document.querySelectorAll('[data-route]').forEach(el=>el.addEventListener('click
 document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage(el.dataset.goto)}));
 window.addEventListener('popstate',()=>showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false));
 showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false);
-const calendarEvents={
-1:[['Математика','math'],['Математика','math']],
-2:[['Математика','math'],['Математика','math'],['Информатика','info'],['Математика','math']],
-4:[['Информатика','info'],['Математика','math']],
-5:[['Математика','math']],
-6:[['Математика','math'],['Информатика','info']],
-8:[['Математика','math']],
-9:[['Математика','math'],['Информатика','info']],
-11:[['Математика','math'],['Информатика','info']],
-12:[['Математика','math']],
-13:[['Математика','math'],['Информатика','info']],
-15:[['Математика','math']],
-16:[['Информатика','info']],
-17:[['Математика','math']],
-18:[['Математика','math'],['Информатика','info'],['Математика','math']],
-19:[['Математика','math'],['Математика','math']],
-20:[['Математика','math'],['Математика','math'],['Информатика','info']],
-21:[['Математика','math']],
-22:[['Математика','math'],['Математика','math']]
-};
+const calendarEvents={};
 let calendarDate=new Date(2026,10,1);
 const monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
 function renderCalendar(){
@@ -153,7 +134,7 @@ function renderCalendar(){
   const cell=document.createElement('div');cell.className='calendar-cell';
   const now=new Date();if(year===now.getFullYear()&&month===now.getMonth()&&day===now.getDate())cell.classList.add('today');
   const date=document.createElement('div');date.className='calendar-date';date.textContent=day;cell.appendChild(date);
-  const entries=month===10? (calendarEvents[day]||[]) : [];
+  const entries=calendarEvents[year+'-'+month+'-'+day]||[];
   entries.forEach(([name,type])=>{const event=document.createElement('div');event.className='calendar-event '+type;event.textContent=name;cell.appendChild(event);});
   if([1,2,6,9,11,17,21,22].includes(day)&&entries.length){const hw=document.createElement('div');hw.className='calendar-homework';hw.innerHTML='<span>Сдать домашку:</span><b>1</b>';cell.appendChild(hw);}
   grid.appendChild(cell);
