@@ -61,6 +61,45 @@
 .calendar-date{font-size:11px;margin-bottom:4px}.calendar-event{font-size:9px;padding-left:4px;border-left-width:2px}
 .calendar-homework{font-size:8px;padding-top:4px}.calendar-homework b{padding:1px 4px}
 }
+
+/* Home dashboard inspired by the supplied reference */
+.home-dashboard{padding-top:28px;padding-bottom:28px}
+.home-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:26px}
+.home-heading h1{font-size:27px;letter-spacing:-.8px;margin:0 0 8px}
+.home-date{display:flex;align-items:center;gap:10px;color:#c8c0c0;font-size:13px}
+.date-icon{display:grid;place-items:center;width:38px;height:38px;border:1px solid #484141;border-radius:50%;font-size:18px}
+.home-clock{font-size:12px;color:#b9b1b1}
+.today-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:30px}
+.today-card{background:#201c1c;border:1px solid #2e2929;border-radius:23px;padding:20px;min-height:178px;display:flex;flex-direction:column}
+.today-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#aaa0a0}
+.status-muted{color:#c5a08f}.today-card h3{font-size:17px;line-height:1.3;margin:15px 0 7px}.today-card p{font-size:12px;color:#a99f9f;margin:0;line-height:1.5}
+.today-footer{margin-top:auto;padding-top:16px;color:#d9d2d2;font-size:12px;display:flex;align-items:center;gap:8px}
+.mini-symbol{width:25px;height:25px;border-radius:50%;background:#302929;display:grid;place-items:center;color:#f07856}
+.access-panel{background:#201c1c;border:1px solid #2c2727;border-radius:25px;padding:25px;margin-bottom:30px}
+.access-title{display:flex;align-items:center;gap:10px}.access-dot{width:9px;height:9px;border-radius:50%;background:#f3a52c}
+.access-title h2{font-size:18px;margin:0}.access-panel>p{font-size:13px;color:#aaa0a0;margin:7px 0 18px}
+.access-inner{background:#2a2525;border-radius:16px;padding:17px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.access-inner strong,.access-inner span{display:block}.access-inner strong{font-size:15px}.access-inner span{font-size:11px;color:#aaa0a0;margin-top:4px}
+.orange-btn{background:#e9654a;color:white;border-radius:30px;padding:12px 20px;font-size:12px;font-weight:800;white-space:nowrap}
+.home-courses-heading{display:flex;justify-content:space-between;align-items:center;margin:0 0 16px}
+.home-courses-heading h2{font-size:23px;margin:0;letter-spacing:-.6px}
+.home-courses-heading>a{font-size:12px;color:#d8b3a5}
+.home-course-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.home-course-card{display:grid;grid-template-columns:155px minmax(0,1fr);gap:17px;background:#201c1c;border:1px solid #2d2828;border-radius:24px;padding:17px;min-width:0}
+.home-course-art{min-height:205px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative;overflow:hidden}
+.math-art{background:radial-gradient(circle at 50% 25%,#714336,#2a1e1c 68%)}
+.info-art{background:radial-gradient(circle at 50% 25%,#384c61,#1b222a 68%)}
+.home-course-art>span{font-size:64px;font-weight:800;color:#f0a17f;text-shadow:0 5px 24px #0008}
+.info-art>span{color:#9fc4e4}
+.home-course-art small{font-size:10px;letter-spacing:1.2px;background:#e8dfd9;color:#211b19;border-radius:5px;padding:6px 9px;font-weight:900}
+.home-course-info{min-width:0;display:flex;flex-direction:column}
+.course-tags{display:flex;gap:7px;flex-wrap:wrap}.course-tags span{background:#302929;border-radius:7px;padding:5px 9px;font-size:10px;color:#f3e9e5}
+.home-course-info h3{font-size:18px;line-height:1.3;margin:13px 0 7px}
+.home-course-info p{font-size:12px;line-height:1.45;color:#aaa0a0;margin:0 0 12px}
+.course-meta{display:flex;flex-direction:column;gap:1px;margin-top:7px;font-size:11px}.course-meta span{color:#988e8e}.course-meta b{font-size:12px}
+.course-link{margin-top:auto;padding-top:12px;color:#f17a5d;font-size:12px;font-weight:800}
+@media(max-width:980px){.home-course-card{grid-template-columns:125px minmax(0,1fr)}.home-course-art{min-height:190px}}
+@media(max-width:760px){.home-dashboard{padding-top:25px}.home-heading h1{font-size:23px}.today-cards{grid-template-columns:1fr;gap:10px}.today-card{min-height:145px}.access-panel{padding:18px}.access-inner{align-items:flex-start;flex-direction:column}.home-course-grid{grid-template-columns:1fr}.home-course-card{grid-template-columns:112px minmax(0,1fr);padding:12px;gap:12px}.home-course-art{min-height:190px}.home-course-art>span{font-size:48px}.home-course-info h3{font-size:15px}.home-course-info p{font-size:11px}}
 </style>
 </head>
 <body>
@@ -71,80 +110,24 @@
 <button class="navitem" data-route="practice"><span class="navicon">✎</span><span>Практика</span></button>
 </nav></aside><div class="main">
 <main>
-<section class="wrap hero" data-screen="home"><div><div class="eyebrow">Онлайн-школа подготовки к ОГЭ</div><h1>Подготовка без паники. <span>С результатом.</span></h1><p class="lead">Математика и информатика для 9 класса. Живые групповые вебинары, практика по темам экзамена и понятный маршрут от первого урока до ОГЭ.</p><div class="actions"><a class="btn" href="#/courses" data-goto="courses">Смотреть курсы <span>→</span></a><a class="btn dark" href="#/practice" data-goto="practice">Открыть практику</a></div><div class="proof"><span>✦ <b>Групповые вебинары</b></span><span>✦ <b>Домашние задания</b></span><span>✦ <b>План подготовки</b></span></div></div>
-<div class="visual"><div class="eyebrow">Твой учебный ритм</div><h2 style="font-size:30px;letter-spacing:-1px;margin:8px 0">Маленькие шаги<br>каждую неделю</h2><div class="dash"><div class="dashhead"><span>ПРОГРЕСС НЕДЕЛИ</span><span>3 из 4 задач</span></div><div class="progress"><i></i></div><div class="task"><span class="tick">✓</span><span>Посетить вебинар по теме</span></div><div class="task"><span class="tick">✓</span><span>Разобрать примеры с урока</span></div><div class="task"><span class="tick">✓</span><span>Выполнить домашнюю работу</span></div><div class="task"><span class="tick">•</span><span>Пройти мини-проверку</span></div></div><div class="float">Ты справишься ✦</div></div></section>
-<section class="wrap section" id="courses" data-screen="courses"><div class="head"><div><div class="eyebrow">Каталог программ</div><h2>Выбери свой курс</h2></div><p class="muted">Сейчас можно изучить программы.<br>Онлайн-оплата появится позже.</p></div><div class="cards">
-<article class="card"><div class="top"><div class="subject">∑</div><span class="tag">ОГЭ · 9 КЛАСС</span></div><h3>Математика</h3><p>Последовательно готовимся к экзамену: от базовых тем до уверенного решения заданий ОГЭ.</p><ul><li>Алгебра и преобразования</li><li>Геометрия и задачи</li><li>Практика по формату ОГЭ</li><li>Разбор типичных ошибок</li></ul><div class="cardfoot"><div><div class="price">Стоимость скоро появится</div><div class="soon">Оплата пока не подключена</div></div><button class="btn disabled" disabled>Скоро</button></div></article>
-<article class="card"><div class="top"><div class="subject">⌘</div><span class="tag">ОГЭ · 9 КЛАСС</span></div><h3>Информатика</h3><p>Учимся понимать логику заданий и решать практические задачи по основным темам экзамена.</p><ul><li>Информация и системы счисления</li><li>Логика и алгоритмы</li><li>Таблицы и обработка данных</li><li>Практика по заданиям ОГЭ</li></ul><div class="cardfoot"><div><div class="price">Стоимость скоро появится</div><div class="soon">Оплата пока не подключена</div></div><button class="btn disabled" disabled>Скоро</button></div></article>
-</div></section>
-<section class="wrap section" id="schedule" data-screen="schedule">
-<div class="calendar-top">
-  <div class="calendar-heading"><h2>Расписание на <span id="calendar-month">ноябрь</span></h2>
-    <div class="month-arrows"><button id="month-prev" aria-label="Предыдущий месяц">←</button><button id="month-next" aria-label="Следующий месяц">→</button></div>
+<section class="wrap home-dashboard" data-screen="home">
+  <div class="home-heading">
+    <div><h1>План на сегодня</h1><div class="home-date"><span class="date-icon">▦</span><span id="today-date">24 ноября</span></div></div>
+    <div class="home-clock" id="home-clock"></div>
   </div>
-  <div class="calendar-actions"><button class="calendar-mode" id="individual-mode">Индивидуальный план</button><button class="calendar-mode active" id="course-mode">Расписание курса</button></div>
-</div>
-<div id="course-calendar">
-  <div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
-  <div class="calendar-grid" id="calendar-grid"></div>
-  <p class="calendar-note">Расписание демонстрационное. Точные даты и время занятий будут опубликованы после формирования учебных групп.</p>
-</div>
-<div class="individual-empty" id="individual-empty" hidden>
-  <div class="empty-calendar-icon">▦</div><h3>Индивидуальный план</h3>
-  <p>Здесь появятся твои занятия, домашние задания и личные учебные цели после подключения аккаунтов учеников.</p>
-</div>
-</section>
-<section class="wrap section" id="cabinet" data-screen="practice"><div class="eyebrow">Пространство ученика</div><h2>Личный кабинет</h2><p class="muted">Предварительный макет учебного кабинета — здесь будут собраны занятия, задания и материалы.</p><div class="portal"><div class="tabs" role="tablist"><button class="tab active" data-tab="week">Моя неделя</button><button class="tab" data-tab="homework">Домашние задания</button><button class="tab" data-tab="materials">Материалы</button><button class="tab" data-tab="progress">Прогресс</button></div><div class="tabcontent" id="tabcontent"><h3>План на неделю</h3><ul><li>Посетить вебинар по выбранному предмету</li><li>Повторить конспект и примеры</li><li>Выполнить домашнюю практику</li></ul></div><div class="notice">Это демонстрационный кабинет. Авторизация, персональные данные, отправка домашних работ и сохранение прогресса будут подключены вместе с серверной частью.</div></div></section>
-<section class="wrap section" data-screen="home"><div class="cta"><div><h2>Сильная подготовка — это система.</h2><p>Выбирай предмет, знакомься с программой и готовься по шагам.</p></div><a class="btn" href="#/courses" data-goto="courses">К программам курсов ↗</a></div></section>
-<section class="wrap section faq" id="faq" data-screen="home"><div class="eyebrow">FAQ</div><h2>Частые вопросы</h2><details><summary>Какие предметы доступны?</summary><p>Математика и информатика для подготовки к ОГЭ в 9 классе.</p></details><details><summary>Как проходят занятия?</summary><p>В формате групповых онлайн-вебинаров с объяснением тем и совместной практикой.</p></details><details><summary>Можно ли оплатить курс на сайте?</summary><p>Пока нет. Мы сначала завершаем учебную платформу, а подключение безопасной оплаты будет отдельным этапом.</p></details><details><summary>Личный кабинет уже работает?</summary><p>Сейчас доступен демонстрационный макет интерфейса. Реальные аккаунты, индивидуальные данные и сохранение прогресса появятся после подключения серверной части.</p></details></section>
-</main>
-<footer class="wrap"><span>© 2026 классно · Онлайн-школа подготовки к ОГЭ</span><span>Математика · Информатика · ОГЭ</span></footer>
-</div></div>
-<script>
-const tabData={
-week:{title:'План на неделю',body:'<ul><li>Посетить вебинар по выбранному предмету</li><li>Повторить конспект и примеры</li><li>Выполнить домашнюю практику</li></ul>'},
-homework:{title:'Домашние задания',body:'<ul><li>Математика: закрепить тему недели — задание появится после вебинара</li><li>Информатика: решить практический блок по теме занятия</li></ul>'},
-materials:{title:'Учебные материалы',body:'<p>Здесь будут конспекты, презентации, подборки задач и записи занятий. Материалы будут доступны ученикам после запуска курсов.</p>'},
-progress:{title:'Мой прогресс',body:'<p>В кабинете появятся выполненные задания, посещённые вебинары и динамика результатов пробных работ.</p>'}
-};
-document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');const d=tabData[btn.dataset.tab];document.getElementById('tabcontent').innerHTML='<h3>'+d.title+'</h3>'+d.body;}));
-function showPage(route, push=true){
- const allowed=['home','courses','schedule','practice'];
- if(!allowed.includes(route)) route='home';
- document.querySelectorAll('[data-screen]').forEach(el=>el.classList.toggle('route-hidden',el.dataset.screen!==route));
- document.querySelectorAll('[data-route]').forEach(el=>el.classList.toggle('active',el.dataset.route===route));
- if(push && location.hash!=='#/'+route) history.pushState({route},'', '#/'+route);
- window.scrollTo(0,0);
-}
-document.querySelectorAll('[data-route]').forEach(el=>el.addEventListener('click',()=>showPage(el.dataset.route)));
-document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage(el.dataset.goto)}));
-window.addEventListener('popstate',()=>showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false));
-showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false);
-const calendarEvents={};
-let calendarDate=new Date(2026,10,1);
-const monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-function renderCalendar(){
- const year=calendarDate.getFullYear(),month=calendarDate.getMonth();
- document.getElementById('calendar-month').textContent=monthNames[month];
- const first=new Date(year,month,1),days=new Date(year,month+1,0).getDate();
- const offset=(first.getDay()+6)%7;
- const grid=document.getElementById('calendar-grid');grid.innerHTML='';
- for(let i=0;i<offset;i++){const blank=document.createElement('div');blank.className='calendar-cell empty';grid.appendChild(blank);}
- for(let day=1;day<=days;day++){
-  const cell=document.createElement('div');cell.className='calendar-cell';
-  const now=new Date();if(year===now.getFullYear()&&month===now.getMonth()&&day===now.getDate())cell.classList.add('today');
-  const date=document.createElement('div');date.className='calendar-date';date.textContent=day;cell.appendChild(date);
-  const entries=calendarEvents[year+'-'+month+'-'+day]||[];
-  entries.forEach(([name,type])=>{const event=document.createElement('div');event.className='calendar-event '+type;event.textContent=name;cell.appendChild(event);});
-  if([1,2,6,9,11,17,21,22].includes(day)&&entries.length){const hw=document.createElement('div');hw.className='calendar-homework';hw.innerHTML='<span>Сдать домашку:</span><b>1</b>';cell.appendChild(hw);}
-  grid.appendChild(cell);
- }
-}
-document.getElementById('month-prev').addEventListener('click',()=>{calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()-1,1);renderCalendar();});
-document.getElementById('month-next').addEventListener('click',()=>{calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+1,1);renderCalendar();});
-document.getElementById('course-mode').addEventListener('click',()=>{document.getElementById('course-mode').classList.add('active');document.getElementById('individual-mode').classList.remove('active');document.getElementById('course-calendar').hidden=false;document.getElementById('individual-empty').hidden=true;});
-document.getElementById('individual-mode').addEventListener('click',()=>{document.getElementById('individual-mode').classList.add('active');document.getElementById('course-mode').classList.remove('active');document.getElementById('course-calendar').hidden=true;document.getElementById('individual-empty').hidden=false;});
-renderCalendar();
-
-</script>
-</body></html>
+  <div class="today-cards">
+    <article class="today-card"><div class="today-meta"><span>Занятия</span><span class="status-muted">План уточняется</span></div><h3>Ближайший вебинар</h3><p>Даты и время появятся после формирования учебных групп.</p><div class="today-footer"><span class="mini-symbol">◷</span> Расписание курса</div></article>
+    <article class="today-card"><div class="today-meta"><span>Домашние задания</span><span class="status-muted">Пока пусто</span></div><h3>Задания на проверку</h3><p>Здесь будут отображаться задания и сроки их выполнения.</p><div class="today-footer"><span class="mini-symbol">✎</span> Раздел «Практика»</div></article>
+    <article class="today-card"><div class="today-meta"><span>Материалы</span><span class="status-muted">Скоро</span></div><h3>Учебные материалы</h3><p>Конспекты и дополнительные материалы появятся после запуска занятий.</p><div class="today-footer"><span class="mini-symbol">▤</span> Материалы курса</div></article>
+  </div>
+  <section class="access-panel">
+    <div class="access-title"><span class="access-dot"></span><h2>Твоя подготовка к ОГЭ</h2></div>
+    <p>Выбери предмет, познакомься с программой и следи за расписанием занятий в личном пространстве.</p>
+    <div class="access-inner"><div><strong>Математика и информатика</strong><span>Групповые онлайн-занятия · подготовка к ОГЭ</span></div><a class="orange-btn" href="#/courses" data-goto="courses">Посмотреть курсы</a></div>
+  </section>
+  <div class="home-courses-heading"><h2>Основные курсы</h2><a href="#/courses" data-goto="courses">Все курсы <span>→</span></a></div>
+  <div class="home-course-grid">
+    <article class="home-course-card"><div class="home-course-art math-art"><span>∑</span><small>ОГЭ · 9 КЛАСС</small></div><div class="home-course-info"><div class="course-tags"><span>Математика</span><span>ОГЭ</span></div><h3>Подготовка к ОГЭ по математике</h3><p>Алгебра, геометрия, разбор типичных ошибок и практика по формату экзамена.</p><div class="course-meta"><span>Формат</span><b>Групповые вебинары</b></div><div class="course-meta"><span>Оплата</span><b>Скоро появится</b></div><a class="course-link" href="#/courses" data-goto="courses">Подробнее <span>↗</span></a></div></article>
+    <article class="home-course-card"><div class="home-course-art info-art"><span>⌘</span><small>ОГЭ · 9 КЛАСС</small></div><div class="home-course-info"><div class="course-tags"><span>Информатика</span><span>ОГЭ</span></div><h3>Подготовка к ОГЭ по информатике</h3><p>Логика, алгоритмы, системы счисления и решение практических заданий.</p><div class="course-meta"><span>Формат</span><b>Групповые вебинары</b></div><div class="course-meta"><span>Оплата</span><b>Скоро появится</b></div><a class="course-link" href="#/courses" data-goto="courses">Подробнее <span>↗</span></a></div></article>
+  </div>
+</section>>
