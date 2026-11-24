@@ -142,7 +142,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
 .schedule-gate,.admin-panel{border:1px solid var(--line);border-radius:22px;background:var(--panel);padding:22px;margin:0 0 20px}
 .schedule-gate{text-align:center;padding:38px 20px}.schedule-gate h2,.admin-panel h2{margin:0 0 8px}.schedule-gate p{color:var(--muted);margin:0 auto;max-width:560px}
 .schedule-list{display:grid;gap:10px;margin:12px 0}.schedule-item,.admin-row{border:1px solid var(--line);border-radius:15px;background:#111519;padding:14px 16px}.schedule-item{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px}.schedule-item time{color:#ff947a;font-weight:800}.schedule-item h3{font-size:16px;margin:0 0 4px}.schedule-item p{margin:3px 0;color:var(--muted);font-size:13px}.schedule-empty{color:var(--muted);padding:22px 4px}
-.admin-panel{margin-top:28px}.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.admin-panel form{display:grid;gap:10px;margin:13px 0}.admin-panel label{display:grid;gap:5px;color:var(--muted);font-size:12px}.admin-panel input,.admin-panel textarea{width:100%;border:1px solid #39424d;border-radius:10px;background:#090c0f;color:var(--text);padding:10px 12px;font:inherit}.admin-panel textarea{min-height:82px;resize:vertical}.admin-actions{display:flex;gap:8px;flex-wrap:wrap}.primary-action,.secondary-action,.danger-action,.logout-action{border:1px solid #39424d;border-radius:20px;padding:9px 14px;color:var(--text);background:#1b2026;font-weight:750}.primary-action{background:var(--accent);border-color:var(--accent);color:#111}.danger-action{color:#ff9580}.admin-list{display:grid;gap:8px}.admin-row{display:flex;justify-content:space-between;align-items:center;gap:12px}.admin-row strong{display:block}.admin-row small{color:var(--muted)}.access-status{font-size:11px;color:var(--muted)}.access-status.active{color:#8bd6a4}.access-status.inactive{color:#ffb29f}.schedule-toolbar{display:flex;justify-content:flex-end;margin:0 0 12px}.schedule-toolbar[hidden],.admin-panel[hidden],.schedule-gate[hidden],#course-calendar[hidden]{display:none!important}
+.admin-panel{margin-top:28px}.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.admin-panel form{display:grid;gap:10px;margin:13px 0}.admin-panel label{display:grid;gap:5px;color:var(--muted);font-size:12px}.admin-panel input,.admin-panel textarea{width:100%;border:1px solid #39424d;border-radius:10px;background:#090c0f;color:var(--text);padding:10px 12px;font:inherit}.admin-panel textarea{min-height:82px;resize:vertical}.admin-actions{display:flex;gap:8px;flex-wrap:wrap}.primary-action,.secondary-action,.danger-action,.logout-action{border:1px solid #39424d;border-radius:20px;padding:9px 14px;color:var(--text);background:#1b2026;font-weight:750}.primary-action{background:var(--accent);border-color:var(--accent);color:#111}.danger-action{color:#ff9580}.admin-list{display:grid;gap:8px}
+.student-manager{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.student-manager summary{cursor:pointer;font-weight:750;font-size:13px;color:var(--text);padding:3px 0}
+.student-search-label{display:grid;gap:6px;margin:12px 0;color:var(--muted);font-size:12px}
+.student-search-label input{width:100%;border:1px solid #39424d;border-radius:10px;background:#090c0f;color:var(--text);padding:10px 12px;font:inherit}
+.student-list{max-height:320px;overflow:auto;padding-right:4px;overscroll-behavior:contain}
+.admin-row{display:flex;justify-content:space-between;align-items:center;gap:12px}.admin-row strong{display:block}.admin-row small{color:var(--muted)}.access-status{font-size:11px;color:var(--muted)}.access-status.active{color:#8bd6a4}.access-status.inactive{color:#ffb29f}.schedule-toolbar{display:flex;justify-content:flex-end;margin:0 0 12px}.schedule-toolbar[hidden],.admin-panel[hidden],.schedule-gate[hidden],#course-calendar[hidden]{display:none!important}
 @media(max-width:760px){.admin-grid{grid-template-columns:1fr}.schedule-item{grid-template-columns:1fr;gap:4px}.schedule-toolbar{justify-content:stretch}.schedule-toolbar button{width:100%}.admin-row{align-items:flex-start;flex-direction:column}}
 
 </style>
@@ -222,7 +228,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
        </section>
        <section><h3>Ученики и доступ</h3>
         <form id="access-form"><label>Telegram ID ученика<input id="access-telegram-id" inputmode="numeric" pattern="[0-9]{5,20}" maxlength="20" required></label><button type="submit" class="primary-action">Выдать доступ</button><p id="access-status-message" class="subtle" role="status"></p></form>
-        <div id="admin-students" class="admin-list"></div>
+        <details class="student-manager"><summary>Список учеников и управление доступом</summary>
+        <label class="student-search-label">Поиск по имени или Telegram ID<input id="student-search" type="search" placeholder="Введите имя или ID"></label>
+        <div id="admin-students" class="admin-list student-list"></div>
+       </details>
        </section>
       </div>
      </section>
@@ -440,12 +449,20 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
    ]));
   });
   const studentsBox=document.getElementById('admin-students');studentsBox.replaceChildren();
+  const studentRows=[];
   (studentResult.students||[]).forEach(item=>{
    const state=document.createElement('span');state.className='access-status '+(item.hasAccess?'active':'inactive');state.textContent=item.hasAccess?'Доступ активен':'Доступ не выдан';
    const label=item.first_name+(item.telegram_username?' · @'+item.telegram_username:'');
    const toggle=makeButton(item.hasAccess?'Отозвать доступ':'Выдать доступ',item.hasAccess?'danger-action':'secondary-action',async()=>{try{await api('admin.access.set',{telegram_id:item.telegram_user_id,is_active:!item.hasAccess});await refreshSchedule();}catch(e){document.getElementById('access-status-message').textContent=e.message;}});
-   studentsBox.appendChild(adminRow(label,'Telegram ID: '+item.telegram_user_id+' · '+item.created_at.slice(0,10),[state,toggle]));
+   const row=adminRow(label,'Telegram ID: '+item.telegram_user_id+' · '+item.created_at.slice(0,10),[state,toggle]);
+   studentRows.push({row,search:(label+' '+item.telegram_user_id).toLowerCase()});
+   studentsBox.appendChild(row);
   });
+  const search=document.getElementById('student-search');
+  if(search){
+   search.value='';
+   search.oninput=()=>{const q=search.value.trim().toLowerCase();studentRows.forEach(item=>{item.row.hidden=!!q&&!item.search.includes(q);});};
+  }
  }
  async function loadPublicLessons(){
   const response=await fetch(SUPABASE_URL+'/rest/v1/lessons?select=id,subject,topic,description,starts_at&order=starts_at.asc',{
