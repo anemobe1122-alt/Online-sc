@@ -40,6 +40,25 @@
 .month-arrows{display:flex;gap:5px}.month-arrows button{width:35px;height:35px;border:1px solid #4a4545;border-radius:50%;background:transparent;color:#fff;font-size:19px}
 .calendar-actions{display:flex;gap:8px}.calendar-mode{border:1px solid #494242;background:transparent;color:#f6f3f3;border-radius:24px;padding:10px 16px;font-size:13px;font-weight:750}.calendar-mode.active{background:#e96349;border-color:#e96349;color:#fff}
 .weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.weekdays{margin-bottom:10px}.weekdays span{text-align:center;padding:8px 2px;font-size:13px;font-weight:700}
+
+.day-modal[hidden]{display:none!important}
+.day-modal{position:fixed;inset:0;z-index:500;display:grid;place-items:center;padding:18px}
+.day-modal-backdrop{position:absolute;inset:0;background:#000b;backdrop-filter:blur(3px)}
+.day-modal-card{position:relative;z-index:1;width:min(575px,100%);max-height:min(78vh,760px);overflow:auto;background:#1d1a1a;border:1px solid #373131;border-radius:28px;padding:30px 24px;box-shadow:0 24px 80px #0009}
+.day-modal-card h2{font-size:20px;margin:0 45px 26px 0}
+.day-modal-caption{font-size:13px;color:var(--muted);margin:0 0 18px}
+.day-modal-close{position:absolute;right:17px;top:15px;width:40px;height:40px;border:1px solid #393333;border-radius:50%;background:transparent;color:var(--text);font-size:25px;line-height:1}
+.day-modal-lessons{display:grid;gap:24px}
+.day-modal-lesson{min-width:0}
+.day-modal-lesson-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:10px}
+.day-modal-subject{border-left:3px solid #ffb21f;padding-left:9px;font-size:13px}
+.day-modal-time{white-space:nowrap;font-size:16px;font-weight:800}
+.day-modal-time:before{content:"";display:inline-block;width:6px;height:6px;background:#58c878;border-radius:50%;margin:0 9px 2px 0}
+.day-modal-topic{font-size:16px;font-weight:750;line-height:1.45}
+.day-modal-description{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
+.day-modal-empty{color:var(--muted);padding:10px 0 18px}
+.calendar-cell{cursor:pointer}
+.calendar-cell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .calendar-cell{min-height:145px;border:1px solid #403b3b;border-radius:22px;padding:13px 11px;display:flex;flex-direction:column;gap:6px;background:#151212}.calendar-cell.empty{border-color:transparent;background:transparent}.calendar-date{align-self:flex-end;font-size:13px;margin-bottom:6px}.calendar-cell.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .calendar-event{font-size:12px;line-height:1.25;border-left:3px solid #f2a51a;padding:2px 0 2px 8px}.calendar-event.info{border-color:#ffca36}.calendar-homework{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:11px;padding-top:9px}.calendar-homework b{background:#302b2b;border-radius:5px;padding:2px 7px}
 .calendar-note{font-size:12px;color:#969090;margin-top:17px}.individual-empty{border:1px solid #403b3b;border-radius:24px;padding:55px 22px;text-align:center;background:#151212}.individual-empty h3{margin:12px 0 6px}.individual-empty p{color:var(--muted);max-width:520px;margin:0 auto}
@@ -219,6 +238,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
     <div id="schedule-content" hidden>
      <div class="schedule-toolbar"><button type="button" class="logout-action" id="telegram-logout">Выйти из аккаунта</button></div>
      <div id="course-calendar"><div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="schedule-list" id="schedule-list"></div><p class="calendar-note" id="schedule-note" role="status"></p></div>
+     <div class="day-modal" id="day-modal" hidden>
+      <div class="day-modal-backdrop" data-day-modal-close></div>
+      <section class="day-modal-card" role="dialog" aria-modal="true" aria-labelledby="day-modal-title">
+       <button type="button" class="day-modal-close" id="day-modal-close" data-day-modal-close aria-label="Закрыть">×</button>
+       <h2 id="day-modal-title"></h2>
+       <p class="day-modal-caption">Уроки:</p>
+       <div id="day-modal-lessons" class="day-modal-lessons"></div>
+      </section>
+     </div>
      <section class="admin-panel" id="admin-panel" hidden>
       <h2>Администрирование</h2><p class="subtle">Изменения сохраняются на сервере. Доступ проверяется при каждом действии.</p>
       <div class="admin-grid">
@@ -385,6 +413,32 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
 
  const months=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
  let shownMonth=new Date();shownMonth.setDate(1);
+ function openDayModal(year,month,day){
+  const modal=document.getElementById('day-modal');
+  const title=document.getElementById('day-modal-title');
+  const list=document.getElementById('day-modal-lessons');
+  const date=new Date(year,month,day);
+  title.textContent=date.toLocaleDateString('ru-RU',{weekday:'long',day:'2-digit',month:'long'});
+  list.replaceChildren();
+  const dayLessons=lessons.filter(item=>{const start=new Date(item.starts_at);return start.getFullYear()===year&&start.getMonth()===month&&start.getDate()===day;}).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  if(!dayLessons.length){const empty=document.createElement('p');empty.className='day-modal-empty';empty.textContent='На этот день занятий нет.';list.appendChild(empty);}
+  dayLessons.forEach(item=>{
+   const block=document.createElement('article');block.className='day-modal-lesson';
+   const head=document.createElement('div');head.className='day-modal-lesson-head';
+   const subject=document.createElement('span');subject.className='day-modal-subject';subject.textContent=item.subject;
+   const time=document.createElement('time');time.className='day-modal-time';const start=new Date(item.starts_at);time.dateTime=start.toISOString();time.textContent=start.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+   const topic=document.createElement('div');topic.className='day-modal-topic';topic.textContent=item.topic;
+   head.append(subject,time);block.append(head,topic);
+   if(item.description){const description=document.createElement('p');description.className='day-modal-description';description.textContent=item.description;block.appendChild(description);}
+   list.appendChild(block);
+  });
+  modal.hidden=false;document.body.style.overflow='hidden';
+  document.getElementById('day-modal-close')?.focus();
+ }
+ function closeDayModal(){
+  const modal=document.getElementById('day-modal');
+  if(modal){modal.hidden=true;document.body.style.overflow='';}
+ }
  function renderCalendar(){
   const y=shownMonth.getFullYear(),m=shownMonth.getMonth();
   document.getElementById('calendar-month').textContent=months[m];
@@ -392,7 +446,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
   grid.innerHTML='';
   for(let i=0;i<offset;i++){const blank=document.createElement('div');blank.className='calendar-cell empty';grid.appendChild(blank);}
   for(let d=1;d<=count;d++){
-   const cell=document.createElement('div');cell.className='calendar-cell';
+   const cell=document.createElement('div');cell.className='calendar-cell';cell.tabIndex=0;cell.setAttribute('role','button');cell.setAttribute('aria-label','Открыть занятия за '+d+' '+months[m]);
    const now=new Date();if(y===now.getFullYear()&&m===now.getMonth()&&d===now.getDate())cell.classList.add('today');
    const date=document.createElement('div');date.className='calendar-date';date.textContent=d;cell.appendChild(date);
    lessons.filter(item=>{const start=new Date(item.starts_at);return start.getFullYear()===y&&start.getMonth()===m&&start.getDate()===d;}).forEach(item=>{
@@ -400,9 +454,14 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
     event.textContent=new Date(item.starts_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' '+item.subject;
     event.title=item.topic;cell.appendChild(event);
    });
+   const activate=()=>openDayModal(y,m,d);
+   cell.addEventListener('click',activate);
+   cell.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate();}});
    grid.appendChild(cell);
   }
  }
+ document.querySelectorAll('[data-day-modal-close]').forEach(el=>el.addEventListener('click',closeDayModal));
+ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDayModal();});
  document.getElementById('month-prev').addEventListener('click',()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderCalendar();});
  document.getElementById('month-next').addEventListener('click',()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderCalendar();});
  document.getElementById('course-mode').addEventListener('click',()=>{document.getElementById('course-mode').classList.add('active');document.getElementById('individual-mode').classList.remove('active');document.getElementById('course-calendar').hidden=false;document.getElementById('individual-empty').hidden=true;});
