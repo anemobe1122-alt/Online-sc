@@ -27,7 +27,41 @@
 .navitem{padding:5px 2px;gap:4px;flex-direction:column;font-size:10px;border-radius:10px}
 .navitem .navicon{width:32px;height:32px;font-size:15px}
 .main .wrap{width:calc(100% - 30px)}.page-title{padding-top:32px}
-}</style>
+}
+/* Calendar page */
+#schedule{padding-top:42px}
+.calendar-top{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;flex-wrap:wrap;margin-bottom:38px}
+.calendar-heading{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.calendar-heading h2{font-size:clamp(24px,3vw,34px);letter-spacing:-1px;margin:0}
+.calendar-heading h2 span{color:#ef6549}
+.month-arrows{display:flex;gap:5px}
+.month-arrows button{width:35px;height:35px;border:1px solid #4a4545;border-radius:50%;background:transparent;color:#fff;font-size:19px}
+.calendar-actions{display:flex;gap:8px}
+.calendar-mode{border:1px solid #494242;background:transparent;color:#f6f3f3;border-radius:24px;padding:10px 16px;font-size:13px;font-weight:750}
+.calendar-mode.active{background:#e96349;border-color:#e96349;color:#fff}
+.weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.weekdays{margin-bottom:10px}
+.weekdays span{text-align:center;padding:8px 2px;font-size:13px;font-weight:700;color:#e9e6e6}
+.calendar-cell{min-height:155px;border:1px solid #403b3b;border-radius:24px;padding:15px 13px;display:flex;flex-direction:column;gap:6px;background:#121010}
+.calendar-cell.empty{border-color:transparent;background:transparent}
+.calendar-date{align-self:flex-end;font-size:13px;margin-bottom:7px}
+.calendar-event{font-size:12px;line-height:1.25;border-left:3px solid #f2a51a;padding:2px 0 2px 8px;white-space:normal}
+.calendar-event.info{border-color:#ffca36}
+.calendar-homework{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:11px;padding-top:9px}
+.calendar-homework b{background:#302b2b;border-radius:5px;padding:2px 7px}
+.calendar-cell.today{border-color:#e96349;box-shadow:inset 0 0 0 1px #e96349}
+.calendar-note{font-size:12px;color:#969090;margin-top:18px}
+.individual-empty{border:1px solid #403b3b;border-radius:24px;padding:55px 22px;text-align:center;background:#121010}
+.individual-empty h3{margin:12px 0 6px}.individual-empty p{color:#aaa;max-width:520px;margin:0 auto}
+.empty-calendar-icon{font-size:34px;color:#ed674b}
+@media(max-width:760px){
+#schedule{padding-top:28px}.calendar-top{margin-bottom:22px}.calendar-heading{gap:10px}.calendar-actions{width:100%}.calendar-mode{flex:1;padding:10px 8px;font-size:11px}
+.weekdays,.calendar-grid{gap:3px}.weekdays span{font-size:10px}
+.calendar-cell{min-height:112px;border-radius:12px;padding:7px 5px;gap:4px}
+.calendar-date{font-size:11px;margin-bottom:4px}.calendar-event{font-size:9px;padding-left:4px;border-left-width:2px}
+.calendar-homework{font-size:8px;padding-top:4px}.calendar-homework b{padding:1px 4px}
+}
+</style>
 </head>
 <body>
 <div class="app"><aside class="sidebar"><div class="sidebrand"><span class="mark">К</span><span>ОНЛАЙН-ШКОЛА</span></div><nav class="sidenav" aria-label="Основная навигация">
@@ -43,7 +77,23 @@
 <article class="card"><div class="top"><div class="subject">∑</div><span class="tag">ОГЭ · 9 КЛАСС</span></div><h3>Математика</h3><p>Последовательно готовимся к экзамену: от базовых тем до уверенного решения заданий ОГЭ.</p><ul><li>Алгебра и преобразования</li><li>Геометрия и задачи</li><li>Практика по формату ОГЭ</li><li>Разбор типичных ошибок</li></ul><div class="cardfoot"><div><div class="price">Стоимость скоро появится</div><div class="soon">Оплата пока не подключена</div></div><button class="btn disabled" disabled>Скоро</button></div></article>
 <article class="card"><div class="top"><div class="subject">⌘</div><span class="tag">ОГЭ · 9 КЛАСС</span></div><h3>Информатика</h3><p>Учимся понимать логику заданий и решать практические задачи по основным темам экзамена.</p><ul><li>Информация и системы счисления</li><li>Логика и алгоритмы</li><li>Таблицы и обработка данных</li><li>Практика по заданиям ОГЭ</li></ul><div class="cardfoot"><div><div class="price">Стоимость скоро появится</div><div class="soon">Оплата пока не подключена</div></div><button class="btn disabled" disabled>Скоро</button></div></article>
 </div></section>
-<section class="wrap section" id="schedule" data-screen="schedule"><div class="eyebrow">Учебный процесс</div><h2>Расписание вебинаров</h2><p class="muted">Пример структуры расписания. Точные дни и время групп будут опубликованы перед стартом набора.</p><div class="schedule"><article class="slot"><div class="day">МАТЕМАТИКА</div><h3>Тема недели и практика</h3><p>Групповой онлайн-вебинар · время уточняется</p></article><article class="slot"><div class="day">ИНФОРМАТИКА</div><h3>Разбор заданий ОГЭ</h3><p>Групповой онлайн-вебинар · время уточняется</p></article><article class="slot"><div class="day">САМОСТОЯТЕЛЬНО</div><h3>Домашняя практика</h3><p>Задания по материалам прошедшего занятия</p></article></div></section>
+<section class="wrap section" id="schedule" data-screen="schedule">
+<div class="calendar-top">
+  <div class="calendar-heading"><h2>Расписание на <span id="calendar-month">ноябрь</span></h2>
+    <div class="month-arrows"><button id="month-prev" aria-label="Предыдущий месяц">←</button><button id="month-next" aria-label="Следующий месяц">→</button></div>
+  </div>
+  <div class="calendar-actions"><button class="calendar-mode" id="individual-mode">Индивидуальный план</button><button class="calendar-mode active" id="course-mode">Расписание курса</button></div>
+</div>
+<div id="course-calendar">
+  <div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
+  <div class="calendar-grid" id="calendar-grid"></div>
+  <p class="calendar-note">Расписание демонстрационное. Точные даты и время занятий будут опубликованы после формирования учебных групп.</p>
+</div>
+<div class="individual-empty" id="individual-empty" hidden>
+  <div class="empty-calendar-icon">▦</div><h3>Индивидуальный план</h3>
+  <p>Здесь появятся твои занятия, домашние задания и личные учебные цели после подключения аккаунтов учеников.</p>
+</div>
+</section>
 <section class="wrap section" id="cabinet" data-screen="practice"><div class="eyebrow">Пространство ученика</div><h2>Личный кабинет</h2><p class="muted">Предварительный макет учебного кабинета — здесь будут собраны занятия, задания и материалы.</p><div class="portal"><div class="tabs" role="tablist"><button class="tab active" data-tab="week">Моя неделя</button><button class="tab" data-tab="homework">Домашние задания</button><button class="tab" data-tab="materials">Материалы</button><button class="tab" data-tab="progress">Прогресс</button></div><div class="tabcontent" id="tabcontent"><h3>План на неделю</h3><ul><li>Посетить вебинар по выбранному предмету</li><li>Повторить конспект и примеры</li><li>Выполнить домашнюю практику</li></ul></div><div class="notice">Это демонстрационный кабинет. Авторизация, персональные данные, отправка домашних работ и сохранение прогресса будут подключены вместе с серверной частью.</div></div></section>
 <section class="wrap section" data-screen="home"><div class="cta"><div><h2>Сильная подготовка — это система.</h2><p>Выбирай предмет, знакомься с программой и готовься по шагам.</p></div><a class="btn" href="#/courses" data-goto="courses">К программам курсов ↗</a></div></section>
 <section class="wrap section faq" id="faq" data-screen="home"><div class="eyebrow">FAQ</div><h2>Частые вопросы</h2><details><summary>Какие предметы доступны?</summary><p>Математика и информатика для подготовки к ОГЭ в 9 классе.</p></details><details><summary>Как проходят занятия?</summary><p>В формате групповых онлайн-вебинаров с объяснением тем и совместной практикой.</p></details><details><summary>Можно ли оплатить курс на сайте?</summary><p>Пока нет. Мы сначала завершаем учебную платформу, а подключение безопасной оплаты будет отдельным этапом.</p></details><details><summary>Личный кабинет уже работает?</summary><p>Сейчас доступен демонстрационный макет интерфейса. Реальные аккаунты, индивидуальные данные и сохранение прогресса появятся после подключения серверной части.</p></details></section>
@@ -70,5 +120,50 @@ document.querySelectorAll('[data-route]').forEach(el=>el.addEventListener('click
 document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showPage(el.dataset.goto)}));
 window.addEventListener('popstate',()=>showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false));
 showPage(location.hash.startsWith('#/') ? location.hash.slice(2) : 'home',false);
+const calendarEvents={
+1:[['Математика','math'],['Математика','math']],
+2:[['Математика','math'],['Математика','math'],['Информатика','info'],['Математика','math']],
+4:[['Информатика','info'],['Математика','math']],
+5:[['Математика','math']],
+6:[['Математика','math'],['Информатика','info']],
+8:[['Математика','math']],
+9:[['Математика','math'],['Информатика','info']],
+11:[['Математика','math'],['Информатика','info']],
+12:[['Математика','math']],
+13:[['Математика','math'],['Информатика','info']],
+15:[['Математика','math']],
+16:[['Информатика','info']],
+17:[['Математика','math']],
+18:[['Математика','math'],['Информатика','info'],['Математика','math']],
+19:[['Математика','math'],['Математика','math']],
+20:[['Математика','math'],['Математика','math'],['Информатика','info']],
+21:[['Математика','math']],
+22:[['Математика','math'],['Математика','math']]
+};
+let calendarDate=new Date(2026,10,1);
+const monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+function renderCalendar(){
+ const year=calendarDate.getFullYear(),month=calendarDate.getMonth();
+ document.getElementById('calendar-month').textContent=monthNames[month];
+ const first=new Date(year,month,1),days=new Date(year,month+1,0).getDate();
+ const offset=(first.getDay()+6)%7;
+ const grid=document.getElementById('calendar-grid');grid.innerHTML='';
+ for(let i=0;i<offset;i++){const blank=document.createElement('div');blank.className='calendar-cell empty';grid.appendChild(blank);}
+ for(let day=1;day<=days;day++){
+  const cell=document.createElement('div');cell.className='calendar-cell';
+  const now=new Date();if(year===now.getFullYear()&&month===now.getMonth()&&day===now.getDate())cell.classList.add('today');
+  const date=document.createElement('div');date.className='calendar-date';date.textContent=day;cell.appendChild(date);
+  const entries=month===10? (calendarEvents[day]||[]) : [];
+  entries.forEach(([name,type])=>{const event=document.createElement('div');event.className='calendar-event '+type;event.textContent=name;cell.appendChild(event);});
+  if([1,2,6,9,11,17,21,22].includes(day)&&entries.length){const hw=document.createElement('div');hw.className='calendar-homework';hw.innerHTML='<span>Сдать домашку:</span><b>1</b>';cell.appendChild(hw);}
+  grid.appendChild(cell);
+ }
+}
+document.getElementById('month-prev').addEventListener('click',()=>{calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()-1,1);renderCalendar();});
+document.getElementById('month-next').addEventListener('click',()=>{calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+1,1);renderCalendar();});
+document.getElementById('course-mode').addEventListener('click',()=>{document.getElementById('course-mode').classList.add('active');document.getElementById('individual-mode').classList.remove('active');document.getElementById('course-calendar').hidden=false;document.getElementById('individual-empty').hidden=true;});
+document.getElementById('individual-mode').addEventListener('click',()=>{document.getElementById('individual-mode').classList.add('active');document.getElementById('course-mode').classList.remove('active');document.getElementById('course-calendar').hidden=true;document.getElementById('individual-empty').hidden=false;});
+renderCalendar();
+
 </script>
 </body></html>
