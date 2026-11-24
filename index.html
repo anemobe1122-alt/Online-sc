@@ -56,6 +56,15 @@
 .my-courses-empty h2{font-size:20px;margin:0 0 7px}
 .my-courses-empty p{max-width:420px;color:var(--muted);font-size:13px;margin:0}
 @media(max-width:760px){.course-tabs{gap:8px}.course-tab{font-size:12px;padding:10px 13px}}
+
+.illustrated-course{grid-template-columns:minmax(145px,36%) minmax(0,1fr);gap:20px;padding:16px;min-height:310px}
+.course-art{min-height:280px;border-radius:19px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#171515;position:relative}
+.course-art img{width:100%;height:100%;min-height:280px;object-fit:cover;display:block}
+.info-course-art{background:radial-gradient(circle at 55% 45%,#44302b,#171515 72%)}
+.info-course-art svg{width:100%;height:100%;max-height:300px;filter:drop-shadow(0 12px 22px #0008)}
+.course-info{display:flex;flex-direction:column;min-width:0}
+.illustrated-course .course-foot{grid-column:2}
+@media(max-width:760px){.illustrated-course{grid-template-columns:108px minmax(0,1fr);gap:12px;padding:11px;min-height:0}.course-art{min-height:175px}.course-art img{min-height:175px}.info-course-art svg{min-height:175px}.illustrated-course .course-foot{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -92,8 +101,8 @@
     <div id="shop-courses" role="tabpanel" aria-labelledby="shop-tab">
      <p class="course-intro">Выбери предмет и познакомься с программой подготовки к ОГЭ.</p>
      <div class="course-grid">
-      <article class="course-card"><div><span class="tag">ОГЭ · 9 КЛАСС</span><h3>Математика</h3><p>Последовательно готовимся к экзамену: от базовых тем до уверенного решения заданий ОГЭ.</p><ul><li>Алгебра и преобразования</li><li>Геометрия и задачи</li><li>Практика по формату ОГЭ</li><li>Разбор типичных ошибок</li></ul></div><div class="course-foot"><div><b>Стоимость скоро появится</b><div class="subtle">Оплата пока не подключена</div></div><span class="tag">Скоро</span></div></article>
-      <article class="course-card"><div><span class="tag">ОГЭ · 9 КЛАСС</span><h3>Информатика</h3><p>Учимся понимать логику заданий и решать практические задачи по основным темам экзамена.</p><ul><li>Информация и системы счисления</li><li>Логика и алгоритмы</li><li>Таблицы и обработка данных</li><li>Практика по заданиям ОГЭ</li></ul></div><div class="course-foot"><div><b>Стоимость скоро появится</b><div class="subtle">Оплата пока не подключена</div></div><span class="tag">Скоро</span></div></article>
+      <article class="course-card illustrated-course"><div class="course-art math-course-art"><img src="assets/math-course.webp" alt="Иллюстрация курса математики"></div><div class="course-info"><span class="tag">ОГЭ · 9 КЛАСС</span><h3>Математика</h3><p>Последовательно готовимся к экзамену: от базовых тем до уверенного решения заданий ОГЭ.</p><ul><li>Алгебра и преобразования</li><li>Геометрия и задачи</li><li>Практика по формату ОГЭ</li><li>Разбор типичных ошибок</li></ul></div><div class="course-foot"><div><b>Стоимость скоро появится</b><div class="subtle">Оплата пока не подключена</div></div><span class="tag">Скоро</span></div></article>
+      <article class="course-card illustrated-course"><div class="course-art info-course-art"><svg viewBox="0 0 320 360" role="img" aria-label="Иллюстрация программирования"><defs><linearGradient id="screenGlow" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ff9a55"/><stop offset="1" stop-color="#e65c3e"/></linearGradient><linearGradient id="laptop" x1="0" x2="1"><stop stop-color="#566170"/><stop offset="1" stop-color="#222833"/></linearGradient></defs><circle cx="160" cy="175" r="120" fill="#252020"/><path d="M25 65 Q90 0 175 20 T300 80" fill="none" stroke="#e96549" stroke-width="18" opacity=".75"/><rect x="68" y="72" width="184" height="132" rx="12" fill="#10151d" stroke="#718092" stroke-width="5" transform="rotate(-5 160 138)"/><path d="M87 105h140M87 125h92M87 145h119M87 165h70" stroke="#ef8055" stroke-width="5" stroke-linecap="round" transform="rotate(-5 160 138)"/><text x="160" y="186" text-anchor="middle" fill="#ff8b54" font-size="47" font-weight="800">&lt;/&gt;</text><path d="M30 260 L276 238 L302 285 L58 314 Z" fill="url(#laptop)" stroke="#8b929c" stroke-width="4"/><path d="M55 270l213-20M70 286l182-17" stroke="#a5aeb9" stroke-width="3" opacity=".7"/><rect x="119" y="292" width="85" height="10" rx="5" fill="#141a22"/><rect x="245" y="110" width="45" height="105" rx="8" fill="#242a32" stroke="#f07850" stroke-width="3"/><path d="M254 129h27M254 151h27M254 173h27" stroke="#ff945a" stroke-width="4" stroke-linecap="round"/><circle cx="48" cy="202" r="8" fill="#ff8b54"/><circle cx="272" cy="48" r="6" fill="#ff8b54"/></svg></div><div class="course-info"><span class="tag">ОГЭ · 9 КЛАСС</span><h3>Информатика</h3><p>Учимся понимать логику заданий и решать практические задачи по основным темам экзамена.</p><ul><li>Информация и системы счисления</li><li>Логика и алгоритмы</li><li>Таблицы и обработка данных</li><li>Практика по заданиям ОГЭ</li></ul></div><div class="course-foot"><div><b>Стоимость скоро появится</b><div class="subtle">Оплата пока не подключена</div></div><span class="tag">Скоро</span></div></article>
      </div>
     </div>
     <div id="my-courses" class="my-courses-empty" role="tabpanel" aria-labelledby="my-courses-tab" hidden>
