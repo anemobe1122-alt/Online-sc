@@ -324,9 +324,30 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 .topic-selected-chip{background:#f6ca3e;color:#302047;border-radius:12px;padding:4px 8px;font-weight:800}
 .topic-none{color:#9b90ad}
 @media(max-width:760px){.topic-hub{padding:14px;margin-bottom:18px}.topic-hub-head h2{font-size:18px}.topic-hub-head p{max-width:245px;line-height:1.4}.topic-option{font-size:10px;padding:7px 9px}}
+
+/* Real display theme switch: light / dark */
+.display-theme-toggle{position:fixed;top:16px;right:190px;z-index:120;border:1px solid #d8c9e8;border-radius:22px;background:#fff;color:#5d3b8c;padding:10px 14px;font-size:12px;font-weight:850;box-shadow:0 5px 18px rgba(48,30,70,.12)}
+.display-theme-toggle:hover{background:#f1e9f8}
+:root[data-display-theme="dark"]{color-scheme:dark;--bg:#17131f;--panel:#241d30;--panel2:#302640;--text:#f4effa;--muted:#b8a9cb;--line:#49395c;--accent:#c3a2ed}
+:root[data-display-theme="dark"] html,:root[data-display-theme="dark"] body{background:#17131f!important;color:#f4effa!important}
+:root[data-display-theme="dark"] .main,:root[data-display-theme="dark"] .page{background:#17131f!important;color:#f4effa!important}
+:root[data-display-theme="dark"] .home-course-card,:root[data-display-theme="dark"] .course-card,:root[data-display-theme="dark"] .panel,:root[data-display-theme="dark"] .card,:root[data-display-theme="dark"] .stat-card,:root[data-display-theme="dark"] .profile-card,:root[data-display-theme="dark"] .lesson-card,:root[data-display-theme="dark"] .task-card,:root[data-display-theme="dark"] .practice-panel,:root[data-display-theme="dark"] .individual-empty,:root[data-display-theme="dark"] .day-modal-card,:root[data-display-theme="dark"] .topic-hub,:root[data-display-theme="dark"] .my-courses-empty{background:#241d30!important;color:#f4effa!important;border-color:#49395c!important}
+:root[data-display-theme="dark"] h1,:root[data-display-theme="dark"] h2,:root[data-display-theme="dark"] h3,:root[data-display-theme="dark"] b,:root[data-display-theme="dark"] strong{color:#f4effa}
+:root[data-display-theme="dark"] p,:root[data-display-theme="dark"] .subtle,:root[data-display-theme="dark"] .home-course-info p,:root[data-display-theme="dark"] .course-info p,:root[data-display-theme="dark"] .practice-panel p,:root[data-display-theme="dark"] .topic-hub-head p{color:#b8a9cb!important}
+:root[data-display-theme="dark"] .calendar-cell{background:#241d30!important;color:#f4effa!important;border-color:#49395c!important}
+:root[data-display-theme="dark"] .calendar-cell.empty{background:transparent!important;border-color:transparent!important}
+:root[data-display-theme="dark"] .course-tab,:root[data-display-theme="dark"] .calendar-mode,:root[data-display-theme="dark"] .month-arrows button,:root[data-display-theme="dark"] .topic-option,:root[data-display-theme="dark"] .topic-subject{background:#302640!important;color:#e9def7!important;border-color:#59466e!important}
+:root[data-display-theme="dark"] .course-tab.active,:root[data-display-theme="dark"] .calendar-mode.active,:root[data-display-theme="dark"] .topic-subject.active{background:#654393!important;color:#fff!important;border-color:#8d70b4!important}
+:root[data-display-theme="dark"] input,:root[data-display-theme="dark"] select,:root[data-display-theme="dark"] textarea{background:#302640!important;color:#f4effa!important;border-color:#59466e!important}
+:root[data-display-theme="dark"] .topic-count,:root[data-display-theme="dark"] .topic-selected-chip{background:#49395c!important;color:#f4effa!important}
+:root[data-display-theme="dark"] .display-theme-toggle{background:#302640;color:#f4effa;border-color:#59466e}
+:root[data-display-theme="dark"] .display-theme-toggle:hover{background:#49395c}
+@media(max-width:760px){.display-theme-toggle{top:58px;right:10px;padding:8px 11px;font-size:11px}}
 </style>
 </head>
 <body>
+<button type="button" id="display-theme-toggle" class="display-theme-toggle" aria-label="Переключить тему оформления">🌙 Тёмная тема</button>
+
 <div id="telegram-entry-overlay" class="telegram-entry-overlay" hidden>
  <div class="telegram-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="telegram-entry-title">
   <button type="button" class="telegram-entry-close" id="telegram-entry-close" aria-label="Закрыть окно">×</button>
@@ -438,6 +459,19 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 </div>
 <script>
 (function(){
+
+ // Persistent light/dark display mode.
+ const themeButton=document.getElementById('display-theme-toggle');
+ function applyDisplayTheme(theme){
+  document.documentElement.dataset.displayTheme=theme;
+  if(themeButton){const dark=theme==='dark';themeButton.textContent=dark?'☀️ Светлая тема':'🌙 Тёмная тема';themeButton.setAttribute('aria-label',dark?'Включить светлую тему':'Включить тёмную тему');}
+  try{localStorage.setItem('online-school-display-theme',theme);}catch(e){}
+ }
+ let savedDisplayTheme='light';
+ try{savedDisplayTheme=localStorage.getItem('online-school-display-theme')==='dark'?'dark':'light';}catch(e){}
+ applyDisplayTheme(savedDisplayTheme);
+ if(themeButton)themeButton.addEventListener('click',()=>applyDisplayTheme(document.documentElement.dataset.displayTheme==='dark'?'light':'dark'));
+
  const routes=['home','courses','schedule','practice'];
  function currentRoute(){const h=location.hash;return h.startsWith('#/')?h.slice(2):'home';}
  function showPage(route,updateHistory){
