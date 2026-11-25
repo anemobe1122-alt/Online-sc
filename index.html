@@ -440,6 +440,10 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 .account-details{min-width:0;flex:1}
 .account-details h2{margin:0 0 5px;font-size:20px}
 .account-details p{margin:0;color:var(--muted);font-size:14px}
+.account-meta{display:flex;gap:24px;flex-wrap:wrap;margin-top:16px}
+.account-meta div{display:grid;gap:4px}
+.account-meta span{font-size:12px;color:var(--muted)}
+.account-meta strong{font-size:14px;font-weight:700}
 .account-role{display:inline-block;margin-top:9px;padding:4px 9px;border-radius:20px;background:#65439322;color:var(--accent);font-size:12px;font-weight:800}
 .account-actions{display:flex;gap:9px;flex-wrap:wrap}
 @media(max-width:600px){.account-panel{align-items:flex-start;flex-wrap:wrap;padding:20px}.account-details{flex-basis:calc(100% - 84px)}.account-actions{width:100%}}
@@ -558,7 +562,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
     <div class="page-heading"><h1>Аккаунт</h1></div>
     <section class="account-panel">
      <div class="account-avatar" aria-hidden="true">♙</div>
-     <div class="account-details"><h2 id="account-status-title">Вы не вошли в аккаунт</h2><p id="account-status-text">Войдите через Telegram, чтобы подключить личный аккаунт ученика.</p><span class="account-role" id="account-role" hidden></span></div>
+     <div class="account-details"><h2 id="account-status-title">Вы не вошли в аккаунт</h2><p id="account-status-text">Войдите через Telegram, чтобы подключить личный аккаунт ученика.</p><div class="account-meta" id="account-meta" hidden><div><span>Telegram-логин</span><strong id="account-telegram-login">—</strong></div><div><span>Статус</span><strong id="account-access-status">—</strong></div></div><span class="account-role" id="account-role" hidden></span></div>
      <div class="account-actions"><button type="button" class="primary-action" id="account-login">Войти через Telegram</button><button type="button" class="secondary-action" id="account-logout" hidden>Выйти из аккаунта</button></div>
     </section>
    </div>
@@ -677,12 +681,18 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   const role=document.getElementById('account-role');
   const login=document.getElementById('account-login');
   const logout=document.getElementById('account-logout');
+  const meta=document.getElementById('account-meta');
+  const telegramLogin=document.getElementById('account-telegram-login');
+  const accessStatus=document.getElementById('account-access-status');
   if(!title||!description||!role||!login||!logout)return;
   const signedIn=!!sessionToken&&!!viewer;
   title.textContent=signedIn?'Аккаунт подключён':'Вы не вошли в аккаунт';
-  description.textContent=signedIn?'Вы вошли через Telegram. Личный аккаунт ученика активен.':'Войдите через Telegram, чтобы подключить личный аккаунт ученика.';
+  description.textContent=signedIn?(viewer.name||'Профиль Telegram'):'Войдите через Telegram, чтобы подключить личный аккаунт ученика.';
   role.hidden=!signedIn;
   role.textContent=signedIn?(viewer.isAdmin?'Администратор':'Ученик'):'';
+  if(meta)meta.hidden=!signedIn;
+  if(telegramLogin)telegramLogin.textContent=signedIn&&viewer.telegram_username?'@'+viewer.telegram_username:'Не указан';
+  if(accessStatus)accessStatus.textContent=signedIn?(viewer.isAdmin?'Полный доступ':viewer.hasAccess?'Доступ активен':'Доступ не активирован'):'—';
   login.hidden=signedIn;
   logout.hidden=!signedIn;
  }
@@ -872,11 +882,11 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
    if(sessionToken){
     try{
      viewer=await api('session');
-     document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';
+     document.getElementById('telegram-reopen')?.setAttribute('aria-label','Выйти из аккаунта');
      adminPanel.hidden=!viewer.isAdmin;
      if(viewer.isAdmin)await loadAdminData();
     }catch(error){
-     if(error.status===401){sessionToken='';sessionStorage.removeItem(sessionKey);viewer=null;document.getElementById('telegram-reopen').textContent='Войти / Регистрация';}
+     if(error.status===401){sessionToken='';sessionStorage.removeItem(sessionKey);viewer=null;document.getElementById('telegram-reopen')?.setAttribute('aria-label','Войти / Регистрация');}
      else throw error;
     }
    }else{
