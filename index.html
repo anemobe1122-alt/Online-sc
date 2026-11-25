@@ -181,6 +181,61 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff98
 .admin-row{display:flex;justify-content:space-between;align-items:center;gap:12px}.admin-row strong{display:block}.admin-row small{color:var(--muted)}.access-status{font-size:11px;color:var(--muted)}.access-status.active{color:#8bd6a4}.access-status.inactive{color:#ffb29f}.schedule-toolbar{display:flex;justify-content:flex-end;margin:0 0 12px}.schedule-toolbar[hidden],.admin-panel[hidden],.schedule-gate[hidden],#course-calendar[hidden]{display:none!important}
 @media(max-width:760px){.admin-grid{grid-template-columns:1fr}.schedule-item{grid-template-columns:1fr;gap:4px}.schedule-toolbar{justify-content:stretch}.schedule-toolbar button{width:100%}.admin-row{align-items:flex-start;flex-direction:column}}
 
+
+/* Theme refresh: purple + warm cream + sunny yellow */
+:root{
+ --bg:#faf7f0;--panel:#ffffff;--panel2:#f1e9f8;--text:#211a36;
+ --muted:#766b91;--line:#e3d7ee;--accent:#f6ca3e;
+ color-scheme:light;
+}
+html,body{background:#faf7f0;color:#211a36}
+.sidebar{background:#5d3b8c;border-right:0;color:#fff}
+.sidebrand{color:#fff}
+.mark{background:#f6ca3e;color:#281b42}
+.navitem{color:#fff}
+.navicon{border-color:#8768ad;color:#fff}
+.navitem:hover{background:#72529d}
+.navitem.active{background:#8060a7;border-color:transparent}
+.navitem.active .navicon{background:#f6ca3e;color:#281b42;border-color:#f6ca3e}
+.main{background:#faf7f0}
+.page{color:#211a36}
+.subtle,.home-course-info p,.course-info p{color:#766b91}
+.home-date,.home-clock{color:#766b91}
+.home-courses-heading a,.course-link{color:#654393}
+.home-course-card,.course-card,.panel,.card,.stat-card,.profile-card,.lesson-card,.task-card{
+ background:#fff;border-color:#e5d9ef;color:#211a36;box-shadow:0 1px 0 rgba(75,45,110,.025)
+}
+.home-course-art.math-art,.home-course-art.info-art{background:#eee5f7}
+.math-art{background:#eee5f7}.info-art{background:#e4f1f7}
+.home-course-art>span{color:#654393}
+.info-art>span{color:#4e8cb5}
+.home-course-art small,.tag,.course-tags span{background:#eee5f7;color:#553582}
+.course-meta span{color:#766b91}
+.course-card ul{color:#5f5673}
+.course-card .course-foot{border-color:#e5d9ef}
+.calendar-heading h1 span{color:#654393}
+.month-arrows button,.calendar-mode{border-color:#ded1ea;color:#493267;background:#fff}
+.calendar-mode.active{background:#f6ca3e;border-color:#f6ca3e;color:#281b42}
+.weekdays span{color:#654393}
+button{color:inherit}
+button:not(.navitem):not(.calendar-mode):not(.month-arrows button):not(.theme-toggle){
+ border-color:#e1d4ec
+}
+.btn,button.primary,.primary-btn,.action-btn{
+ background:#f6ca3e!important;border-color:#f6ca3e!important;color:#281b42!important;font-weight:800
+}
+.btn:hover,button.primary:hover,.primary-btn:hover,.action-btn:hover{background:#f2bd23!important}
+input,select,textarea{background:#fff!important;color:#211a36!important;border-color:#ded1ea!important}
+input::placeholder,textarea::placeholder{color:#9b90ad}
+hr,.divider{border-color:#e5d9ef}
+a{color:#654393}
+a:hover{color:#4d2b7b}
+header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
+.modal,.dialog,.popover{background:#fff;color:#211a36;border-color:#e5d9ef}
+.day-modal-backdrop{background:rgba(35,23,54,.48)}
+@media(max-width:760px){
+ .sidebar{background:#5d3b8c}
+}
 </style>
 </head>
 <body>
