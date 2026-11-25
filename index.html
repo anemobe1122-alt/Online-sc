@@ -395,8 +395,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 #telegram-entry-overlay.is-open{display:flex!important;visibility:visible!important;pointer-events:auto!important}
 
 /* Theme switch stays in the page header position instead of floating over scrolling content */
-.display-theme-toggle{position:absolute!important;top:16px!important;right:190px!important}
-@media(max-width:760px){.display-theme-toggle{top:10px!important;right:150px!important}}
+/* Theme switch is positioned only by the static main toolbar; remove legacy absolute positioning. */
 
 /* Smooth page transitions between main navigation tabs */
 @media(prefers-reduced-motion:no-preference){
