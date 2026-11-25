@@ -268,6 +268,24 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 .info-course-art svg path[stroke="#a5aeb9"]{stroke:#8d70b4!important}
 .info-course-art svg rect[fill="#141a22"]{fill:#8d70b4!important}
 .home-course-art.math-art,.home-course-art.info-art{background:#eee5f7!important}
+
+/* Final navigation and login-button polish */
+#telegram-reopen.telegram-reopen-button{
+ background:#654393!important;
+ border:1px solid #654393!important;
+ color:#fff!important;
+ box-shadow:0 5px 18px rgba(75,45,110,.22)!important;
+}
+#telegram-reopen.telegram-reopen-button:hover{background:#52347c!important;border-color:#52347c!important}
+#telegram-reopen.telegram-reopen-button:focus-visible{outline:3px solid #cbb5e2!important;outline-offset:3px}
+.sidebar .sidenav{display:grid!important;grid-auto-flow:row}
+.sidebar .sidenav [data-route="practice"]{display:flex!important;visibility:visible!important;opacity:1!important}
+.sidebar .sidenav .navitem.active{background:#8060a7!important;color:#fff!important}
+.sidebar .sidenav .navitem.active .navicon{background:#fff!important;color:#5d3b8c!important;border-color:#fff!important}
+@media(max-width:760px){
+ .sidebar .sidenav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ .sidebar .sidenav [data-route="practice"]{display:flex!important}
+}
 </style>
 </head>
 <body>
