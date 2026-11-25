@@ -421,6 +421,15 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   transition:background-color .24s ease,color .24s ease,border-color .24s ease,box-shadow .24s ease;
  }
 }
+
+/* Smooth month changes in the calendar */
+@media(prefers-reduced-motion:no-preference){
+ @keyframes calendarMonthFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+ #calendar-grid.month-entering{animation:calendarMonthFade .24s ease-out both}
+ #calendar-month.month-entering{animation:calendarMonthFade .2s ease-out both}
+ .month-arrows button{transition:background-color .2s ease,border-color .2s ease,transform .2s ease}
+ .month-arrows button:active{transform:scale(.9)}
+}
 </style>
 </head>
 <body>
@@ -734,8 +743,14 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  }
  document.querySelectorAll('[data-day-modal-close]').forEach(el=>el.addEventListener('click',closeDayModal));
  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDayModal();});
- document.getElementById('month-prev').addEventListener('click',()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderCalendar();});
- document.getElementById('month-next').addEventListener('click',()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderCalendar();});
+ function shiftCalendarMonth(delta){
+  shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+delta,1);
+  renderCalendar();
+  const grid=document.getElementById('calendar-grid'),label=document.getElementById('calendar-month');
+  [grid,label].forEach(el=>{el.classList.remove('month-entering');void el.offsetWidth;el.classList.add('month-entering');});
+ }
+ document.getElementById('month-prev').addEventListener('click',()=>shiftCalendarMonth(-1));
+ document.getElementById('month-next').addEventListener('click',()=>shiftCalendarMonth(1));
  document.getElementById('course-mode').addEventListener('click',()=>{document.getElementById('course-mode').classList.add('active');document.getElementById('individual-mode').classList.remove('active');document.getElementById('course-calendar').hidden=false;document.getElementById('individual-empty').hidden=true;});
  document.getElementById('individual-mode').addEventListener('click',()=>{document.getElementById('individual-mode').classList.add('active');document.getElementById('course-mode').classList.remove('active');document.getElementById('course-calendar').hidden=true;document.getElementById('individual-empty').hidden=false;});
  renderCalendar();
