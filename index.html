@@ -976,12 +976,15 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  document.getElementById('telegram-logout').addEventListener('click',logoutAccount);
  document.getElementById('account-logout').addEventListener('click',logoutAccount);
  document.getElementById('account-login').addEventListener('click',openLogin);
- document.getElementById('lesson-form').addEventListener('submit',async event=>{
+ const lessonForm=document.getElementById('lesson-form');
+ lessonForm.addEventListener('submit',async event=>{
   event.preventDefault();const status=document.getElementById('lesson-status');status.textContent='Сохраняем…';
-  try{await api('admin.lesson.save',{id:document.getElementById('lesson-id').value||undefined,subject:document.getElementById('lesson-subject').value,topic:document.getElementById('lesson-topic').value,description:document.getElementById('lesson-description').value,starts_at:new Date(document.getElementById('lesson-starts-at').value).toISOString()});event.currentTarget.reset();document.getElementById('lesson-id').value='';status.textContent='Занятие сохранено.';await refreshSchedule();}
-  catch(error){status.textContent=error.message;}
+  try{
+   await api('admin.lesson.save',{id:document.getElementById('lesson-id').value||undefined,subject:document.getElementById('lesson-subject').value,topic:document.getElementById('lesson-topic').value,description:document.getElementById('lesson-description').value,starts_at:new Date(document.getElementById('lesson-starts-at').value).toISOString()});
+   lessonForm.reset();document.getElementById('lesson-id').value='';status.textContent='Занятие сохранено.';await refreshSchedule();
+  }catch(error){status.textContent=error.message;}
  });
- document.getElementById('lesson-reset').addEventListener('click',()=>{document.getElementById('lesson-form').reset();document.getElementById('lesson-id').value='';});
+ document.getElementById('lesson-reset').addEventListener('click',()=>{lessonForm.reset();document.getElementById('lesson-id').value='';});
 
  (async()=>{window.scheduleReady=true;if(sessionToken){try{viewer=await api('session');document.getElementById('telegram-reopen')?.setAttribute('aria-label','Выйти из аккаунта');}catch{sessionToken='';sessionStorage.removeItem(sessionKey);}}
   renderAccount();
