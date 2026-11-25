@@ -283,8 +283,10 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 .sidebar .sidenav .navitem.active{background:#8060a7!important;color:#fff!important}
 .sidebar .sidenav .navitem.active .navicon{background:#fff!important;color:#5d3b8c!important;border-color:#fff!important}
 @media(max-width:760px){
- .sidebar .sidenav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ .sidebar .sidenav{grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-flow:row!important}
+ .sidebar .sidenav .navitem{min-width:0!important;width:100%!important}
  .sidebar .sidenav [data-route="practice"]{display:flex!important}
+ .sidebar .sidenav [data-route="account"]{display:flex!important}
 }
 
 /* Fix: empty "Мои курсы" state must use the light theme */
