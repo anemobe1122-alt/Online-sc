@@ -397,6 +397,19 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 /* Theme switch stays in the page header position instead of floating over scrolling content */
 .display-theme-toggle{position:absolute!important;top:16px!important;right:190px!important}
 @media(max-width:760px){.display-theme-toggle{top:10px!important;right:150px!important}}
+
+/* Smooth page transitions between main navigation tabs */
+@media(prefers-reduced-motion:no-preference){
+ @keyframes schoolPageEnter{
+  from{opacity:0;transform:translateY(10px);filter:blur(2px)}
+  to{opacity:1;transform:translateY(0);filter:blur(0)}
+ }
+ .page.active{animation:schoolPageEnter .32s cubic-bezier(.2,.75,.25,1) both}
+ .navitem{transition:background .22s ease,border-color .22s ease,color .22s ease,transform .22s ease}
+ .navitem:active{transform:scale(.975)}
+ .navitem .navicon{transition:background .22s ease,color .22s ease,border-color .22s ease,transform .22s ease}
+ .navitem.active .navicon{transform:scale(1.04)}
+}
 </style>
 </head>
 <body>
