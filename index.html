@@ -422,18 +422,12 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  }
 }
 
-/* Keep the two utility buttons together above the schedule, not stacked far apart */
-body:has(#page-schedule.active) .display-theme-toggle{top:14px;right:190px}
-body:has(#page-schedule.active) .telegram-reopen-button{position:fixed;top:14px;right:18px;left:auto}
-body:has(#page-schedule.active) #page-schedule{padding-top:82px}
+/* Account action stays in normal document flow */
+.main-toolbar{max-width:1300px;margin:0 auto;padding:14px clamp(18px,2.5vw,42px) 0;display:flex;justify-content:flex-end;align-items:center}
+.main-toolbar .telegram-reopen-button{position:static;display:inline-flex;align-items:center;justify-content:center;box-shadow:none}
 @media(max-width:760px){
- body:has(#page-schedule.active) .display-theme-toggle{top:10px;right:174px;left:auto;padding:8px 10px;font-size:11px}
- body:has(#page-schedule.active) .telegram-reopen-button{top:10px;right:10px;left:auto;padding:8px 10px;font-size:11px}
- body:has(#page-schedule.active) #page-schedule{padding-top:76px}
-}
-@media(max-width:390px){
- body:has(#page-schedule.active) .display-theme-toggle{right:158px;font-size:10px;padding:7px 8px}
- body:has(#page-schedule.active) .telegram-reopen-button{font-size:10px;padding:7px 8px}
+ .main-toolbar{padding:10px 14px 0}
+ .main-toolbar .telegram-reopen-button{padding:8px 11px;font-size:11px}
 }
 
 /* Smooth month changes in the calendar */
@@ -459,7 +453,6 @@ body:has(#page-schedule.active) #page-schedule{padding-top:82px}
  </div>
 </div>
 
-<button type="button" class="telegram-reopen-button" id="telegram-reopen">Войти / Регистрация</button>
 <div class="app">
 <aside class="sidebar">
  <div class="sidebrand"><span class="mark">Э</span><span>ОНЛАЙН-ШКОЛА</span></div>
@@ -471,6 +464,7 @@ body:has(#page-schedule.active) #page-schedule{padding-top:82px}
  </nav>
 </aside>
 <div class="main">
+ <div class="main-toolbar"><button type="button" class="telegram-reopen-button" id="telegram-reopen">Войти / Регистрация</button></div>
  <main>
 
   <section class="page" id="page-home" data-page="home">
