@@ -286,6 +286,22 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  .sidebar .sidenav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
  .sidebar .sidenav [data-route="practice"]{display:flex!important}
 }
+
+/* Fix: empty "Мои курсы" state must use the light theme */
+#my-courses.my-courses-empty,
+.my-courses-empty:not([hidden]){
+ background:#fff!important;
+ background-color:#fff!important;
+ color:#211a36!important;
+ border:1px solid #e4d8ee!important;
+ box-shadow:none!important;
+}
+#my-courses.my-courses-empty h2,
+.my-courses-empty h2{color:#211a36!important}
+#my-courses.my-courses-empty p,
+.my-courses-empty p{color:#766b91!important}
+#my-courses.my-courses-empty .my-courses-icon,
+.my-courses-empty .my-courses-icon{color:#654393!important}
 </style>
 </head>
 <body>
