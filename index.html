@@ -410,6 +410,17 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  .navitem .navicon{transition:background .22s ease,color .22s ease,border-color .22s ease,transform .22s ease}
  .navitem.active .navicon{transform:scale(1.04)}
 }
+
+/* Soft entrance for Telegram login dialog and smooth color changes on theme switch */
+@media(prefers-reduced-motion:no-preference){
+ @keyframes loginOverlayFadeIn{from{opacity:0}to{opacity:1}}
+ @keyframes loginDialogPopIn{from{opacity:0;transform:translateY(12px) scale(.975)}to{opacity:1;transform:translateY(0) scale(1)}}
+ #telegram-entry-overlay.is-open{animation:loginOverlayFadeIn .22s ease-out both}
+ #telegram-entry-overlay.is-open .telegram-entry-dialog{animation:loginDialogPopIn .28s cubic-bezier(.2,.75,.25,1) both}
+ html,body,.sidebar,.main,.page,.home-course-card,.course-card,.panel,.card,.stat-card,.profile-card,.lesson-card,.task-card,.practice-panel,.calendar-cell,.course-tab,.calendar-mode,.navitem,.navicon,.display-theme-toggle,.telegram-reopen-button,.tag,.course-tags span,.home-course-art,.course-art{
+  transition:background-color .24s ease,color .24s ease,border-color .24s ease,box-shadow .24s ease;
+ }
+}
 </style>
 </head>
 <body>
