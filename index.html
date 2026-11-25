@@ -422,12 +422,17 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  }
 }
 
-/* Account action stays in normal document flow */
-.main-toolbar{max-width:1300px;margin:0 auto;padding:14px clamp(18px,2.5vw,42px) 0;display:flex;justify-content:flex-end;align-items:center}
-.main-toolbar .telegram-reopen-button{position:static;display:inline-flex;align-items:center;justify-content:center;box-shadow:none}
+/* Both utility buttons share one static toolbar row */
+.main-toolbar{max-width:1300px;margin:0 auto;padding:14px clamp(18px,2.5vw,42px) 0;display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.main-toolbar .display-theme-toggle,.main-toolbar .telegram-reopen-button{position:static;inset:auto;display:inline-flex;align-items:center;justify-content:center;flex:none;box-shadow:none;margin:0}
 @media(max-width:760px){
- .main-toolbar{padding:10px 14px 0}
+ .main-toolbar{padding:10px 14px 0;gap:8px}
+ .main-toolbar .display-theme-toggle{padding:8px 10px;font-size:11px}
  .main-toolbar .telegram-reopen-button{padding:8px 11px;font-size:11px}
+}
+@media(max-width:390px){
+ .main-toolbar{gap:6px}
+ .main-toolbar .display-theme-toggle,.main-toolbar .telegram-reopen-button{font-size:10px;padding:7px 8px}
 }
 
 /* Smooth month changes in the calendar */
@@ -441,8 +446,6 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 </style>
 </head>
 <body>
-<button type="button" id="display-theme-toggle" class="display-theme-toggle" aria-label="Переключить тему оформления">🌙 Тёмная тема</button>
-
 <div id="telegram-entry-overlay" class="telegram-entry-overlay" hidden aria-hidden="true">
  <div class="telegram-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="telegram-entry-title">
   <button type="button" class="telegram-entry-close" id="telegram-entry-close" aria-label="Закрыть окно">×</button>
@@ -464,7 +467,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  </nav>
 </aside>
 <div class="main">
- <div class="main-toolbar"><button type="button" class="telegram-reopen-button" id="telegram-reopen">Войти / Регистрация</button></div>
+ <div class="main-toolbar"><button type="button" id="display-theme-toggle" class="display-theme-toggle" aria-label="Переключить тему оформления">🌙 Тёмная тема</button><button type="button" class="telegram-reopen-button" id="telegram-reopen">Войти / Регистрация</button></div>
  <main>
 
   <section class="page" id="page-home" data-page="home">
