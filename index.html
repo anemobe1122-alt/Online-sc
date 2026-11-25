@@ -393,6 +393,10 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 /* Never flash the optional Telegram registration dialog during page load */
 #telegram-entry-overlay:not(.is-open){display:none!important;visibility:hidden!important;pointer-events:none!important}
 #telegram-entry-overlay.is-open{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+
+/* Theme switch stays in the page header position instead of floating over scrolling content */
+.display-theme-toggle{position:absolute!important;top:16px!important;right:190px!important}
+@media(max-width:760px){.display-theme-toggle{top:10px!important;right:150px!important}}
 </style>
 </head>
 <body>
