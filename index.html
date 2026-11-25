@@ -464,7 +464,6 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   <section class="page" id="page-schedule" data-page="schedule">
    <div class="page-wrap">
     <div class="calendar-top"><div class="calendar-heading"><h1>Расписание на <span id="calendar-month">ноябрь</span></h1><div class="month-arrows"><button id="month-prev" aria-label="Предыдущий месяц">←</button><button id="month-next" aria-label="Следующий месяц">→</button></div></div><div class="calendar-actions"><button class="calendar-mode" id="individual-mode">Индивидуальный план</button><button class="calendar-mode active" id="course-mode">Расписание курса</button></div></div>
-    <div id="schedule-gate" class="schedule-gate"><h2>Расписание доступно ученикам</h2><p>Войдите через Telegram. Если доступ ещё не выдан, попросите администратора онлайн-школы подключить его.</p><button type="button" class="primary-action" id="schedule-login">Войти через Telegram</button></div>
     <div id="schedule-content" hidden>
      <button type="button" class="logout-action" id="telegram-logout" hidden>Выйти из аккаунта</button>
      <div id="course-calendar"><div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="schedule-list" id="schedule-list"></div><p class="calendar-note" id="schedule-note" role="status"></p></div>
@@ -717,16 +716,15 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  document.getElementById('individual-mode').addEventListener('click',()=>{document.getElementById('individual-mode').classList.add('active');document.getElementById('course-mode').classList.remove('active');document.getElementById('course-calendar').hidden=true;document.getElementById('individual-empty').hidden=false;});
  renderCalendar();
 
- const scheduleGate=document.getElementById('schedule-gate');
+ const scheduleGate={hidden:true};
  const scheduleContent=document.getElementById('schedule-content');
  const scheduleList=document.getElementById('schedule-list');
  const scheduleNote=document.getElementById('schedule-note');
  const adminPanel=document.getElementById('admin-panel');
  function showScheduleGate(message,login){
-  scheduleContent.hidden=true;scheduleGate.hidden=false;
-  scheduleGate.querySelector('h2').textContent=login?'Расписание доступно ученикам':'Доступ пока не выдан';
-  scheduleGate.querySelector('p').textContent=message;
-  document.getElementById('schedule-login').hidden=!login;
+  scheduleContent.hidden=false;
+  scheduleGate.hidden=true;
+  scheduleNote.textContent='';
  }
  function renderSchedule(){
   renderCalendar();scheduleList.replaceChildren();
@@ -804,8 +802,8 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
    scheduleNote.textContent=error.message||'Не удалось загрузить расписание.';
   }
  }
- document.getElementById('schedule-login').addEventListener('click',openLogin);
- document.getElementById('telegram-logout').addEventListener('click',()=>{sessionToken='';viewer=null;lessons=[];sessionStorage.removeItem(sessionKey);document.getElementById('telegram-reopen').textContent='Войти / Регистрация';showScheduleGate('Войдите через Telegram, чтобы открыть расписание.',true);});
+
+ document.getElementById('telegram-logout').addEventListener('click',()=>{sessionToken='';viewer=null;lessons=[];sessionStorage.removeItem(sessionKey);document.getElementById('telegram-reopen').textContent='Войти / Регистрация';scheduleContent.hidden=false;scheduleNote.textContent='';});
  document.getElementById('lesson-form').addEventListener('submit',async event=>{
   event.preventDefault();const status=document.getElementById('lesson-status');status.textContent='Сохраняем…';
   try{await api('admin.lesson.save',{id:document.getElementById('lesson-id').value||undefined,subject:document.getElementById('lesson-subject').value,topic:document.getElementById('lesson-topic').value,description:document.getElementById('lesson-description').value,starts_at:new Date(document.getElementById('lesson-starts-at').value).toISOString()});event.currentTarget.reset();document.getElementById('lesson-id').value='';status.textContent='Занятие сохранено.';await refreshSchedule();}
