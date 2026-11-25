@@ -591,11 +591,11 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
       <h2>Администрирование</h2><p class="subtle">Изменения сохраняются на сервере. Доступ проверяется при каждом действии.</p>
       <div class="admin-grid">
        <section><h3>Занятия</h3>
-        <form id="lesson-form"><input id="lesson-id" type="hidden"><label>Предмет<input id="lesson-subject" maxlength="120" required></label><label>Тема<input id="lesson-topic" maxlength="240" required></label><label>Описание<textarea id="lesson-description" maxlength="5000"></textarea></label><label>Дата и время<input id="lesson-starts-at" type="datetime-local" required></label><div class="admin-actions"><button type="submit" class="primary-action">Сохранить занятие</button><button type="button" class="secondary-action" id="lesson-reset">Очистить форму</button></div><p id="lesson-status" class="subtle" role="status"></p></form>
+        <form id="lesson-form"><input id="lesson-id" type="hidden"><label>Направление<select id="lesson-subject" required><option value="math">Математика</option><option value="informatics">Информатика</option></select></label><label>Тема<input id="lesson-topic" maxlength="240" required></label><label>Описание<textarea id="lesson-description" maxlength="5000"></textarea></label><label>Дата и время<input id="lesson-starts-at" type="datetime-local" required></label><div class="admin-actions"><button type="submit" class="primary-action">Сохранить занятие</button><button type="button" class="secondary-action" id="lesson-reset">Очистить форму</button></div><p id="lesson-status" class="subtle" role="status"></p></form>
         <div id="admin-lessons" class="admin-list"></div>
        </section>
        <section><h3>Ученики и доступ</h3>
-        <form id="access-form"><label>Telegram ID ученика<input id="access-telegram-id" inputmode="numeric" pattern="[0-9]{5,20}" maxlength="20" required></label><button type="submit" class="primary-action">Выдать доступ</button><p id="access-status-message" class="subtle" role="status"></p></form>
+        <p class="subtle">Назначайте каждому ученику одно или оба направления прямо в его карточке ниже.</p><p id="access-status-message" class="subtle" role="status"></p>
         <details class="student-manager"><summary>Список учеников и управление доступом</summary>
         <label class="student-search-label">Поиск по имени или Telegram ID<input id="student-search" type="search" placeholder="Введите имя или ID"></label>
         <div id="admin-students" class="admin-list student-list"></div>
@@ -877,7 +877,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  }
  function renderSchedule(){
   renderCalendar();scheduleList.replaceChildren();
-  if(!lessons.length){scheduleNote.textContent='Предстоящих занятий пока нет.';return;}
+  if(!lessons.length){scheduleNote.textContent=sessionToken?'Для вашего аккаунта пока нет занятий по назначенным направлениям.':'Войдите через Telegram, чтобы увидеть расписание своих курсов.';return;}
   scheduleNote.textContent='';
   lessons.forEach(item=>{
    const row=document.createElement('article');row.className='schedule-item';
@@ -906,10 +906,18 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   const studentsBox=document.getElementById('admin-students');studentsBox.replaceChildren();
   const studentRows=[];
   (studentResult.students||[]).forEach(item=>{
-   const state=document.createElement('span');state.className='access-status '+(item.hasAccess?'active':'inactive');state.textContent=item.hasAccess?'Доступ активен':'Доступ не выдан';
    const label=item.first_name+(item.telegram_username?' · @'+item.telegram_username:'');
-   const toggle=makeButton(item.hasAccess?'Отозвать доступ':'Выдать доступ',item.hasAccess?'danger-action':'secondary-action',async()=>{try{await api('admin.access.set',{telegram_id:item.telegram_user_id,is_active:!item.hasAccess});await refreshSchedule();}catch(e){document.getElementById('access-status-message').textContent=e.message;}});
-   const row=adminRow(label,'Telegram ID: '+item.telegram_user_id+' · '+item.created_at.slice(0,10),[state,toggle]);
+   const granted=item.subjects||[];
+   const subjectButtons=['math','informatics'].map(subject=>{
+    const title=subject==='math'?'Математика':'Информатика';
+    const enabled=granted.includes(subject);
+    return makeButton((enabled?'✓ ':'＋ ')+title,enabled?'secondary-action':'danger-action',async()=>{
+     try{await api('admin.subject-access.set',{telegram_id:item.telegram_user_id,subject,enabled:!enabled});await loadAdminData();}
+     catch(e){document.getElementById('access-status-message').textContent=e.message;}
+    });
+   });
+   const state=document.createElement('span');state.className='access-status '+(granted.length?'active':'inactive');state.textContent=granted.length?'Назначено: '+granted.length+'/2':'Курсы не назначены';
+   const row=adminRow(label,'Telegram ID: '+item.telegram_user_id+' · '+item.created_at.slice(0,10),[state,...subjectButtons]);
    studentRows.push({row,search:(label+' '+item.telegram_user_id).toLowerCase()});
    studentsBox.appendChild(row);
   });
@@ -920,12 +928,10 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   }
  }
  async function loadPublicLessons(){
-  const response=await fetch(SUPABASE_URL+'/rest/v1/lessons?select=id,subject,topic,description,starts_at&order=starts_at.asc',{
-   headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+SUPABASE_PUBLISHABLE_KEY}
-  });
-  let result=[];try{result=await response.json();}catch{}
-  if(!response.ok)throw new Error((result&&result.message)||'Не удалось загрузить расписание.');
-  lessons=Array.isArray(result)?result:[];
+  if(!sessionToken){lessons=[];return;}
+  const result=await api('lessons.list');
+  lessons=Array.isArray(result.lessons)?result.lessons:[];
+  window.onlineSchoolSubjects=Array.isArray(result.subjects)?result.subjects:[];
  }
  async function refreshSchedule(){
   try{
@@ -968,11 +974,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   catch(error){status.textContent=error.message;}
  });
  document.getElementById('lesson-reset').addEventListener('click',()=>{document.getElementById('lesson-form').reset();document.getElementById('lesson-id').value='';});
- document.getElementById('access-form').addEventListener('submit',async event=>{
-  event.preventDefault();const status=document.getElementById('access-status-message');status.textContent='Сохраняем…';
-  try{await api('admin.access.set',{telegram_id:document.getElementById('access-telegram-id').value.trim(),is_active:true});status.textContent='Доступ выдан.';await refreshSchedule();}
-  catch(error){status.textContent=error.message;}
- });
+
  (async()=>{window.scheduleReady=true;if(sessionToken){try{viewer=await api('session');document.getElementById('telegram-reopen')?.setAttribute('aria-label','Выйти из аккаунта');}catch{sessionToken='';sessionStorage.removeItem(sessionKey);}}
   renderAccount();
   if(currentRoute()==='schedule')await refreshSchedule();})();
