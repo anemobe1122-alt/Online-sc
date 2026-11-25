@@ -305,6 +305,25 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 
 /* White brand badge */
 .sidebar .sidebrand .mark{background:#fff!important;color:#5d3b8c!important;border:1px solid #fff!important}
+
+/* Shared topic picker — stays visible on every section */
+.topic-hub{margin:0 auto 24px;max-width:1300px;background:#fff;border:1px solid #e4d8ee;border-radius:22px;padding:18px 20px;color:#211a36}
+.topic-hub-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.topic-kicker{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#76549d}
+.topic-hub-head h2{font-size:20px;margin:3px 0 4px;color:#211a36}
+.topic-hub-head p{font-size:12px;color:#766b91;margin:0}
+.topic-count{white-space:nowrap;background:#f1e9f8;color:#5d3b8c;border-radius:20px;padding:7px 11px;font-size:11px;font-weight:800}
+.topic-subjects{display:flex;gap:8px;margin:15px 0 11px}
+.topic-subject{border:1px solid #dfd1ec;border-radius:18px;background:#fff;color:#5d3b8c;padding:8px 13px;font-size:12px;font-weight:800}
+.topic-subject.active{background:#5d3b8c;color:#fff;border-color:#5d3b8c}
+.topic-options{display:flex;flex-wrap:wrap;gap:8px}
+.topic-option{border:1px solid #e4d8ee;border-radius:16px;background:#faf7fc;color:#55436e;padding:8px 11px;font-size:11px;cursor:pointer}
+.topic-option[aria-pressed="true"]{background:#eee5f7;border-color:#8d70b4;color:#4e2f78;font-weight:800}
+.topic-selected-wrap{display:flex;align-items:flex-start;gap:9px;margin-top:13px;font-size:11px;color:#766b91}
+.topic-selected{display:flex;flex-wrap:wrap;gap:6px}
+.topic-selected-chip{background:#f6ca3e;color:#302047;border-radius:12px;padding:4px 8px;font-weight:800}
+.topic-none{color:#9b90ad}
+@media(max-width:760px){.topic-hub{padding:14px;margin-bottom:18px}.topic-hub-head h2{font-size:18px}.topic-hub-head p{max-width:245px;line-height:1.4}.topic-option{font-size:10px;padding:7px 9px}}
 </style>
 </head>
 <body>
@@ -331,6 +350,15 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 </aside>
 <div class="main">
  <main>
+ <section class="topic-hub" id="topic-hub" aria-label="Выбор учебных тем">
+  <div class="topic-hub-head"><div><span class="topic-kicker">МОЙ МАРШРУТ</span><h2>Выбор тем</h2><p>Отмечай темы, которые хочешь изучить. Выбор будет виден во всех разделах.</p></div><span class="topic-count" id="topic-count">0 выбрано</span></div>
+  <div class="topic-subjects" role="group" aria-label="Предмет">
+   <button type="button" class="topic-subject active" data-topic-subject="math">Математика</button>
+   <button type="button" class="topic-subject" data-topic-subject="info">Информатика</button>
+  </div>
+  <div class="topic-options" id="topic-options"></div>
+  <div class="topic-selected-wrap"><span>Выбрано:</span><div class="topic-selected" id="topic-selected"><span class="topic-none">Пока ничего не выбрано</span></div></div>
+ </section>
   <section class="page" id="page-home" data-page="home">
    <div class="page-wrap">
     <div class="page-heading"><div><h1>План на сегодня</h1><div class="home-date"><span class="date-icon">▦</span><span id="today-date"></span></div></div><div class="home-clock" id="home-clock"></div></div>
@@ -425,6 +453,43 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  window.addEventListener('popstate',()=>showPage(currentRoute(),false));
  window.addEventListener('hashchange',()=>showPage(currentRoute(),false));
  showPage(currentRoute(),false);
+ // Shared topic selection, persisted locally and visible across all pages.
+ const topicCatalog={
+  math:['Числа и вычисления','Дроби и проценты','Алгебраические выражения','Уравнения и неравенства','Функции и графики','Текстовые задачи','Последовательности','Треугольники и углы','Окружность и круг','Площади и объёмы','Вероятность и статистика'],
+  info:['Информация и кодирование','Логика и таблицы истинности','Алгоритмы','Исполнители','Системы счисления','Компьютерные сети','Электронные таблицы','Моделирование','Программирование','Анализ данных']
+ };
+ const topicNames={math:'Математика',info:'Информатика'};
+ let topicSubject='math',selectedTopics={math:[],info:[]};
+ try{const saved=JSON.parse(localStorage.getItem('online-school-selected-topics')||'{}');if(saved&&typeof saved==='object'){selectedTopics.math=Array.isArray(saved.math)?saved.math:[];selectedTopics.info=Array.isArray(saved.info)?saved.info:[];}}catch(e){}
+ const topicOptions=document.getElementById('topic-options');
+ const topicSelected=document.getElementById('topic-selected');
+ const topicCount=document.getElementById('topic-count');
+ function renderTopics(){
+  if(!topicOptions)return;
+  topicOptions.innerHTML='';
+  topicCatalog[topicSubject].forEach(name=>{
+   const b=document.createElement('button');b.type='button';b.className='topic-option';b.textContent=name;
+   const on=selectedTopics[topicSubject].includes(name);b.setAttribute('aria-pressed',String(on));
+   b.addEventListener('click',()=>{
+    const arr=selectedTopics[topicSubject],idx=arr.indexOf(name);if(idx>=0)arr.splice(idx,1);else arr.push(name);
+    try{localStorage.setItem('online-school-selected-topics',JSON.stringify(selectedTopics));}catch(e){}
+    renderTopics();renderSelectedTopics();
+   });
+   topicOptions.appendChild(b);
+  });
+  document.querySelectorAll('[data-topic-subject]').forEach(b=>b.classList.toggle('active',b.dataset.topicSubject===topicSubject));
+ }
+ function renderSelectedTopics(){
+  if(!topicSelected)return;
+  topicSelected.innerHTML='';
+  const all=[...selectedTopics.math.map(x=>({name:x,subject:'math'})),...selectedTopics.info.map(x=>({name:x,subject:'info'}))];
+  topicCount.textContent=all.length+' выбрано';
+  if(!all.length){const s=document.createElement('span');s.className='topic-none';s.textContent='Пока ничего не выбрано';topicSelected.appendChild(s);return;}
+  all.forEach(item=>{const s=document.createElement('span');s.className='topic-selected-chip';s.textContent=topicNames[item.subject]+': '+item.name;topicSelected.appendChild(s);});
+ }
+ document.querySelectorAll('[data-topic-subject]').forEach(b=>b.addEventListener('click',()=>{topicSubject=b.dataset.topicSubject;renderTopics();}));
+ renderTopics();renderSelectedTopics();
+
  const shopTab=document.getElementById('shop-tab'),myTab=document.getElementById('my-courses-tab');
  function showCourseTab(which){
   const shop=which==='shop';
