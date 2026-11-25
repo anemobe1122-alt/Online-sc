@@ -890,7 +890,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
      else throw error;
     }
    }else{
-    document.getElementById('telegram-reopen').textContent='Войти / Регистрация';
+    document.getElementById('telegram-reopen')?.setAttribute('aria-label','Войти / Регистрация');
    }
    renderSchedule();
    renderAccount();
@@ -902,7 +902,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 
  function logoutAccount(){
   sessionToken='';viewer=null;lessons=[];sessionStorage.removeItem(sessionKey);
-  document.getElementById('telegram-reopen').textContent='Войти / Регистрация';
+  document.getElementById('telegram-reopen')?.setAttribute('aria-label','Войти / Регистрация');
   scheduleContent.hidden=false;scheduleNote.textContent='';
   renderAccount();
  }
@@ -920,7 +920,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   try{await api('admin.access.set',{telegram_id:document.getElementById('access-telegram-id').value.trim(),is_active:true});status.textContent='Доступ выдан.';await refreshSchedule();}
   catch(error){status.textContent=error.message;}
  });
- (async()=>{window.scheduleReady=true;if(sessionToken){try{viewer=await api('session');document.getElementById('telegram-reopen').textContent='Выйти из аккаунта';}catch{sessionToken='';sessionStorage.removeItem(sessionKey);}}
+ (async()=>{window.scheduleReady=true;if(sessionToken){try{viewer=await api('session');document.getElementById('telegram-reopen')?.setAttribute('aria-label','Выйти из аккаунта');}catch{sessionToken='';sessionStorage.removeItem(sessionKey);}}
   renderAccount();
   if(currentRoute()==='schedule')await refreshSchedule();})();
  setInterval(()=>{if(window.scheduleReady&&currentRoute()==='schedule')refreshSchedule();},60000);
