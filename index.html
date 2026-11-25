@@ -303,6 +303,20 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 #my-courses.my-courses-empty .my-courses-icon,
 .my-courses-empty .my-courses-icon{color:#654393!important}
 
+/* Restore proper dark-theme colors for the My Courses empty state */
+:root[data-display-theme="dark"] #my-courses.my-courses-empty,
+:root[data-display-theme="dark"] .my-courses-empty:not([hidden]){
+ background:#241d30!important;background-color:#241d30!important;
+ color:#f4effa!important;border-color:#49395c!important;
+ box-shadow:0 12px 32px rgba(0,0,0,.18)!important;
+}
+:root[data-display-theme="dark"] #my-courses.my-courses-empty h2,
+:root[data-display-theme="dark"] .my-courses-empty h2{color:#f4effa!important}
+:root[data-display-theme="dark"] #my-courses.my-courses-empty p,
+:root[data-display-theme="dark"] .my-courses-empty p{color:#b8a9cb!important}
+:root[data-display-theme="dark"] #my-courses.my-courses-empty .my-courses-icon,
+:root[data-display-theme="dark"] .my-courses-empty .my-courses-icon{color:#c3a2ed!important}
+
 /* White brand badge */
 .sidebar .sidebrand .mark{background:#fff!important;color:#5d3b8c!important;border:1px solid #fff!important}
 
