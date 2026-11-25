@@ -692,7 +692,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   role.textContent=signedIn?(viewer.isAdmin?'Администратор':'Ученик'):'';
   if(meta)meta.hidden=!signedIn;
   if(telegramLogin)telegramLogin.textContent=signedIn&&viewer.telegram_username?'@'+viewer.telegram_username:'Не указан';
-  if(accessStatus)accessStatus.textContent=signedIn?(viewer.isAdmin?'Полный доступ':viewer.hasAccess?'Доступ активен':'Доступ не активирован'):'—';
+  if(accessStatus)accessStatus.textContent=signedIn?(viewer.isAdmin?'Администратор':'Ученик'):'—';
   login.hidden=signedIn;
   logout.hidden=!signedIn;
  }
