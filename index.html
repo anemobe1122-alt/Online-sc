@@ -816,7 +816,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   dayLessons.forEach(item=>{
    const block=document.createElement('article');block.className='day-modal-lesson';
    const head=document.createElement('div');head.className='day-modal-lesson-head';
-   const subject=document.createElement('span');subject.className='day-modal-subject';subject.textContent=item.subject;
+   const subject=document.createElement('span');subject.className='day-modal-subject';subject.textContent=subjectLabel(item.subject);
    const time=document.createElement('time');time.className='day-modal-time';const start=new Date(item.starts_at);time.dateTime=start.toISOString();time.textContent=start.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
    const topic=document.createElement('div');topic.className='day-modal-topic';topic.textContent=item.topic;
    head.append(subject,time);block.append(head,topic);
@@ -842,7 +842,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
    const date=document.createElement('div');date.className='calendar-date';date.textContent=d;cell.appendChild(date);
    lessons.filter(item=>{const start=new Date(item.starts_at);return start.getFullYear()===y&&start.getMonth()===m&&start.getDate()===d;}).forEach(item=>{
     const event=document.createElement('div');event.className='calendar-event';
-    event.textContent=new Date(item.starts_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' '+item.subject;
+    event.textContent=new Date(item.starts_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' '+subjectLabel(item.subject);
     event.title=item.topic;cell.appendChild(event);
    });
    const activate=()=>openDayModal(y,m,d);
@@ -875,6 +875,9 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   scheduleGate.hidden=true;
   scheduleNote.textContent='';
  }
+ function subjectLabel(subject){
+  return subject==='math'?'Математика':subject==='informatics'?'Информатика':subject;
+ }
  function renderSchedule(){
   renderCalendar();scheduleList.replaceChildren();
   if(!lessons.length){scheduleNote.textContent=sessionToken?'Для вашего аккаунта пока нет занятий по назначенным направлениям.':'Войдите через Telegram, чтобы увидеть расписание своих курсов.';return;}
@@ -882,7 +885,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   lessons.forEach(item=>{
    const row=document.createElement('article');row.className='schedule-item';
    const time=document.createElement('time');const start=new Date(item.starts_at);time.dateTime=start.toISOString();time.textContent=start.toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-   const details=document.createElement('div');const title=document.createElement('h3');title.textContent=item.subject+' · '+item.topic;details.appendChild(title);
+   const details=document.createElement('div');const title=document.createElement('h3');title.textContent=subjectLabel(item.subject)+' · '+item.topic;details.appendChild(title);
    if(item.description){const desc=document.createElement('p');desc.textContent=item.description;details.appendChild(desc);}
    row.append(time,details);scheduleList.appendChild(row);
   });
@@ -898,7 +901,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
   const lessonsBox=document.getElementById('admin-lessons');lessonsBox.replaceChildren();
   (lessonResult.lessons||[]).forEach(item=>{
    const date=new Date(item.starts_at).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-   lessonsBox.appendChild(adminRow(item.subject+' · '+item.topic,date,[
+   lessonsBox.appendChild(adminRow(subjectLabel(item.subject)+' · '+item.topic,date,[
     makeButton('Изменить','secondary-action',()=>{document.getElementById('lesson-id').value=item.id;document.getElementById('lesson-subject').value=item.subject;document.getElementById('lesson-topic').value=item.topic;document.getElementById('lesson-description').value=item.description||'';const d=new Date(item.starts_at);document.getElementById('lesson-starts-at').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}),
     makeButton('Удалить','danger-action',async()=>{if(!confirm('Удалить это занятие?'))return;try{await api('admin.lesson.delete',{id:item.id});await refreshSchedule();}catch(e){scheduleNote.textContent=e.message;}})
    ]));
@@ -929,9 +932,14 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  }
  async function loadPublicLessons(){
   if(!sessionToken){lessons=[];return;}
-  const result=await api('lessons.list');
-  lessons=Array.isArray(result.lessons)?result.lessons:[];
-  window.onlineSchoolSubjects=Array.isArray(result.subjects)?result.subjects:[];
+  try{
+   const result=await api('lessons.list');
+   lessons=Array.isArray(result.lessons)?result.lessons:[];
+   window.onlineSchoolSubjects=Array.isArray(result.subjects)?result.subjects:[];
+  }catch(error){
+   if(error.status===401){sessionToken='';sessionStorage.removeItem(sessionKey);viewer=null;lessons=[];return;}
+   throw error;
+  }
  }
  async function refreshSchedule(){
   try{
