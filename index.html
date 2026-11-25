@@ -445,6 +445,32 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
 .account-meta span{font-size:12px;color:var(--muted)}
 .account-meta strong{font-size:14px;font-weight:700}
 .account-role{display:inline-block;margin-top:9px;padding:4px 9px;border-radius:20px;background:#65439322;color:var(--accent);font-size:12px;font-weight:800}
+/* Admin student list: restore readable light-theme surfaces and controls */
+:root[data-display-theme="light"] .admin-panel .admin-row{
+ background:#fff!important;border-color:#e4d8ef!important;color:#29213a!important;
+}
+:root[data-display-theme="light"] .admin-panel .admin-row strong{color:#29213a!important}
+:root[data-display-theme="light"] .admin-panel .admin-row small{color:#756b86!important}
+:root[data-display-theme="light"] .admin-panel .access-status.active{color:#278451!important}
+:root[data-display-theme="light"] .admin-panel .access-status.inactive{color:#b64b3d!important}
+:root[data-display-theme="light"] .admin-panel .student-manager summary{
+ color:#29213a!important;border:1px solid #e4d8ef;border-radius:8px;padding:7px 9px;outline:none!important;
+}
+:root[data-display-theme="light"] .admin-panel .student-manager summary:focus,
+:root[data-display-theme="light"] .admin-panel .student-manager summary:focus-visible{outline:2px solid #8c65b5!important;outline-offset:2px}
+:root[data-display-theme="light"] .admin-panel .student-search-label{color:#756b86!important}
+:root[data-display-theme="light"] .admin-panel .student-search-label input,
+:root[data-display-theme="light"] .admin-panel input,
+:root[data-display-theme="light"] .admin-panel textarea{
+ background:#fff!important;color:#29213a!important;border-color:#dfd1eb!important;
+}
+:root[data-display-theme="light"] .admin-panel .secondary-action{
+ background:#654393!important;border-color:#654393!important;color:#fff!important;
+}
+:root[data-display-theme="light"] .admin-panel .danger-action{
+ background:#fff!important;border-color:#d8c9e4!important;color:#b94d3e!important;
+}
+
 /* Light-theme account contrast fixes */
 #page-account .account-actions .secondary-action{
  background:#654393!important;border-color:#654393!important;color:#fff!important;
