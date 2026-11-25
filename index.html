@@ -602,6 +602,12 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
        </details>
        </section>
       </div>
+      <section id="admin-staff-panel" hidden style="margin-top:22px;border-top:1px solid var(--line);padding-top:18px">
+       <h3>Администраторы</h3>
+       <p class="subtle">Выдавать и отзывать права на админку может только владелец KATAYOSE.</p>
+       <p id="admin-staff-status" class="subtle" role="status"></p>
+       <div id="admin-staff-list" class="admin-list"></div>
+      </section>
      </section>
     </div>
     <div class="individual-empty" id="individual-empty" hidden><div style="font-size:34px;color:var(--accent)">▦</div><h3>Индивидуальный план</h3><p>Здесь появятся твои занятия, домашние задания и личные учебные цели после подключения аккаунтов учеников.</p></div>
@@ -878,6 +884,32 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  function subjectLabel(subject){
   return subject==='math'?'Математика':subject==='informatics'?'Информатика':subject;
  }
+ async function loadAdminStaff(){
+  const panel=document.getElementById('admin-staff-panel');
+  if(!viewer?.isOwner){panel.hidden=true;return;}
+  panel.hidden=false;
+  const box=document.getElementById('admin-staff-list');
+  const status=document.getElementById('admin-staff-status');
+  status.textContent='Загружаем список…';
+  try{
+   const result=await api('admin.staff.list');
+   box.replaceChildren();
+   (result.students||[]).forEach(item=>{
+    const label=(item.first_name||'Ученик')+(item.telegram_username?' · @'+item.telegram_username:'');
+    const state=document.createElement('span');
+    state.className='access-status '+(item.isAdmin?'active':'inactive');
+    state.textContent=item.isOwner?'Владелец':item.isAdmin?'Администратор':'Ученик';
+    const buttons=[];
+    if(!item.isOwner)buttons.push(makeButton(item.isAdmin?'Отозвать права':'Выдать права',item.isAdmin?'danger-action':'secondary-action',async()=>{
+     status.textContent='Сохраняем…';
+     try{await api('admin.staff.set',{telegram_id:item.telegram_user_id,enabled:!item.isAdmin});await loadAdminStaff();status.textContent='Права администратора обновлены.';if(viewer?.telegram_username===item.telegram_username)await refreshSchedule();}
+     catch(error){status.textContent=error.message;}
+    }));
+    box.appendChild(adminRow(label,'Telegram ID: '+item.telegram_user_id,[state,...buttons]));
+   });
+   status.textContent='Выберите ученика, чтобы выдать или отозвать права администратора.';
+  }catch(error){status.textContent=error.message;}
+ }
  function renderSchedule(){
   renderCalendar();scheduleList.replaceChildren();
   if(!lessons.length){scheduleNote.textContent=sessionToken?'Для вашего аккаунта пока нет занятий по назначенным направлениям.':'Войдите через Telegram, чтобы увидеть расписание своих курсов.';return;}
@@ -951,7 +983,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
      viewer=await api('session');
      document.getElementById('telegram-reopen')?.setAttribute('aria-label','Выйти из аккаунта');
      adminPanel.hidden=!viewer.isAdmin;
-     if(viewer.isAdmin)await loadAdminData();
+     if(viewer.isAdmin){await loadAdminData();if(viewer.isOwner)await loadAdminStaff();}
     }catch(error){
      if(error.status===401){sessionToken='';sessionStorage.removeItem(sessionKey);viewer=null;document.getElementById('telegram-reopen')?.setAttribute('aria-label','Войти / Регистрация');}
      else throw error;
