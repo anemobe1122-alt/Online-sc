@@ -422,6 +422,18 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  }
 }
 
+/* Keep the fixed account/theme controls clear of the calendar header */
+#page-schedule{padding-top:88px}
+@media(max-width:760px){
+ #page-schedule{padding-top:82px}
+ .display-theme-toggle{top:10px;right:10px;padding:8px 11px;font-size:11px}
+ .telegram-reopen-button{top:10px;right:auto;left:10px;padding:8px 11px;font-size:11px}
+}
+@media(max-width:390px){
+ #page-schedule{padding-top:92px}
+ .display-theme-toggle,.telegram-reopen-button{font-size:10px;padding:7px 9px}
+}
+
 /* Smooth month changes in the calendar */
 @media(prefers-reduced-motion:no-preference){
  @keyframes calendarMonthFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
