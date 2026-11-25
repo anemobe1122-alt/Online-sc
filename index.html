@@ -1,8 +1,24 @@
 <!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Онлайн школа</title>
 <style>
 :root{--bg:#FAF7F0;--panel:#fff;--text:#292333;--muted:#706879;--line:#e5ddeb;--purple:#5B3A8E;--yellow:#F5C842;--teal:#3FA796}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,sans-serif}.app{min-height:100vh;display:grid;grid-template-columns:225px 1fr}.side{background:var(--purple);color:white;padding:24px 15px}.brand{font-weight:900;font-size:17px;margin:4px 8px 30px}.brand small{display:block;font-size:10px;letter-spacing:2px;opacity:.7}.nav{display:grid;gap:7px}.nav button{border:0;background:transparent;color:#fff;text-align:left;padding:12px;border-radius:12px;cursor:pointer}.nav button.active,.nav button:hover{background:#ffffff24}.main{min-width:0}.top{height:68px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 4%}.top button,.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}.btn{background:var(--yellow);color:#292333}.ghost{background:var(--panel);border:1px solid var(--line)!important;color:var(--text)}.content{max-width:1150px;margin:auto;padding:30px 4% 60px}.page{display:none}.page.active{display:block}.muted{color:var(--muted)}.eyebrow{color:var(--purple);font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}.heading{margin-bottom:24px}.heading h1{font-size:34px;line-height:1.15;margin:7px 0}.hero{background:linear-gradient(120deg,#5B3A8E,#8060b3);color:white;border-radius:22px;padding:30px;display:flex;justify-content:space-between;align-items:center;gap:20px}.hero h2{font-size:32px;line-height:1.15;margin:8px 0}.hero p{color:#eee5f7;max-width:600px}.hero-art{font-size:85px}.stats,.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.grid.two{grid-template-columns:repeat(2,1fr)}.card,.stat{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:18px}.stat b{display:block;color:var(--purple);font-size:25px}.stat span{color:var(--muted);font-size:12px}.course{display:grid;grid-template-columns:90px 1fr;gap:14px;align-items:center}.art{height:95px;border-radius:14px;background:#eee5f8;display:grid;place-items:center;font-size:48px}.art.blue{background:#e5f0f7}.tag{display:inline-block;background:#eee6f6;color:#50347c;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:900}.course h3{margin:8px 0 4px}.course p{font-size:12px;color:var(--muted);margin:0}.tabs{display:flex;gap:8px;margin:16px 0}.tabs button{padding:9px 14px;border-radius:22px;border:1px solid var(--line);background:white;cursor:pointer}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.dow{text-align:center;color:var(--muted);font-size:11px;padding:8px}.day{min-height:90px;background:white;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:12px}body.dark{--bg:#1C1826;--panel:#292334;--text:#f8f5ff;--muted:#c4b9d2;--line:#494057}body.dark .top,body.dark .card,body.dark .stat,body.dark .day,body.dark .tabs button{background:var(--panel);color:var(--text)}@media(max-width:760px){.app{grid-template-columns:1fr}.side{padding:8px;position:sticky;top:0;z-index:2}.brand{display:none}.nav{display:flex;justify-content:space-around}.nav button{font-size:11px;padding:8px}.hero-art{display:none}.stats{gap:6px}.stat{padding:10px}.stat b{font-size:20px}.grid.two{grid-template-columns:1fr}.day{min-height:65px;padding:4px;font-size:10px}.content{padding-top:22px}.heading h1{font-size:28px}}
+
+.auth-overlay{position:fixed;inset:0;background:#171221bb;display:grid;place-items:center;padding:18px;z-index:50}.auth-overlay[hidden]{display:none}.auth-dialog{position:relative;width:min(440px,100%);background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 20px 70px #0003}.auth-dialog h2{margin:0 0 8px}.auth-dialog p{color:var(--muted)}.auth-close{position:absolute;right:14px;top:10px;border:0;background:transparent;color:var(--muted);font-size:27px;cursor:pointer}.auth-dialog .btn{display:block;width:100%;margin-top:14px}.auth-link{display:block;margin-top:14px;color:var(--purple);font-weight:800}.auth-code{width:100%;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}.auth-status{min-height:22px;font-size:13px}.auth-dialog small{color:var(--muted)}
 </style>
-<div class="app"><aside class="side"><div class="brand">Онлайн школа<small>ОНЛАЙН-ШКОЛА</small></div><nav class="nav"><button class="active" data-page="home">⌂ Главная</button><button data-page="courses">◇ Курсы</button><button data-page="calendar">▦ Календарь</button><button data-page="practice">✎ Тренажёр</button><button data-page="profile">◉ Кабинет</button></nav></aside><main class="main"><header class="top"><span>Учебная платформа / <b id="crumb">Главная</b></span><div><button class="ghost" id="theme">☾ Тема</button></div></header><div class="content">
+
+<div id="telegram-entry-overlay" class="auth-overlay" hidden>
+ <div class="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="telegram-entry-title">
+  <button type="button" class="auth-close" id="telegram-entry-close" aria-label="Закрыть">×</button>
+  <h2 id="telegram-entry-title">Вход и регистрация</h2>
+  <p>Войдите или создайте аккаунт через Telegram.</p>
+  <button class="btn" id="telegram-register" type="button">Продолжить через Telegram</button>
+  <a class="auth-link" id="telegram-open-bot" href="#" target="_blank" rel="noopener" hidden>Открыть Telegram-бота</a>
+  <input class="auth-code" id="telegram-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Код из Telegram" hidden>
+  <button class="btn" id="telegram-verify" type="button" hidden>Подтвердить код</button>
+  <p class="auth-status" id="telegram-auth-status" role="status" aria-live="polite"></p>
+  <small>Продолжая, вы соглашаетесь с обработкой данных, необходимых для регистрации.</small>
+ </div>
+</div>
+<div class="app"><aside class="side"><div class="brand">Онлайн школа<small>ОНЛАЙН-ШКОЛА</small></div><nav class="nav"><button class="active" data-page="home">⌂ Главная</button><button data-page="courses">◇ Курсы</button><button data-page="calendar">▦ Календарь</button><button data-page="practice">✎ Тренажёр</button><button data-page="profile">◉ Кабинет</button></nav></aside><main class="main"><header class="top"><span>Учебная платформа / <b id="crumb">Главная</b></span><div><button class="ghost" id="telegram-reopen">Войти / Регистрация</button> <button class="ghost" id="theme">☾ Тема</button></div></header><div class="content">
 <section class="page active" id="home"><div class="heading"><div class="eyebrow">Твоя учебная история начинается здесь</div><h1>Привет! Готов к следующей арке?</h1><p class="muted">Подготовка к ОГЭ по математике и информатике — с понятным прогрессом и без лишнего шума.</p></div><div class="hero"><div><div class="eyebrow" style="color:#ffe17c">ТВОЙ МАРШРУТ К ЭКЗАМЕНУ</div><h2>Не нужно быть идеальным.<br>Нужно двигаться дальше.</h2><p>Разбирай темы, тренируйся и отслеживай прогресс. Аниме-стиль остаётся в навигации — главное внимание учёбе.</p><button class="btn" onclick="go('courses')">Выбрать курс →</button></div><div class="hero-art">📚✨</div></div><div class="stats"><div class="stat"><b>2</b><span>основных курса</span></div><div class="stat"><b>15–20</b><span>заданий диагностики</span></div><div class="stat"><b>3</b><span>уровня сложности</span></div></div><h2>Основные курсы</h2><div class="grid two"><div class="card course"><div class="art">📐</div><div><span class="tag">ОГЭ · 9 КЛАСС</span><h3>Математика</h3><p>Алгебра, геометрия, типичные ошибки и практика.</p></div></div><div class="card course"><div class="art blue">💻</div><div><span class="tag">ОГЭ · 9 КЛАСС</span><h3>Информатика</h3><p>Логика, алгоритмы, системы счисления и практика.</p></div></div></div></section>
 <section class="page" id="courses"><div class="heading"><div class="eyebrow">Каталог обучения</div><h1>Курсы</h1><p class="muted">Гостям доступен просмотр программ и демо-уроков.</p></div><div class="grid two"><div class="card"><div class="art">📐</div><span class="tag">ОГЭ · 9 КЛАСС</span><h2>Математика</h2><p class="muted">От базовых тем до уверенного решения заданий ОГЭ.</p><p>• Алгебра и преобразования<br>• Геометрия<br>• Практика по формату экзамена</p><b>Групповые вебинары</b><p class="muted">Стоимость скоро появится</p><button class="btn" onclick="demo('Математика')">Демо-урок</button></div><div class="card"><div class="art blue">💻</div><span class="tag">ОГЭ · 9 КЛАСС</span><h2>Информатика</h2><p class="muted">Логика заданий и практические задачи по темам экзамена.</p><p>• Логика и системы счисления<br>• Алгоритмы<br>• Практические задания</p><b>Групповые вебинары</b><p class="muted">Стоимость скоро появится</p><button class="btn" onclick="demo('Информатика')">Демо-урок</button></div></div><div class="card"><h2>Преподаватель</h2><p class="muted">Профиль-заглушка. Реальные имя, фото и биография добавляются позднее.</p>🧑‍🏫 Преподаватель онлайн-школы</div></section>
 <section class="page" id="calendar"><div class="heading"><div class="eyebrow">Расписание занятий</div><h1>Календарь</h1><p class="muted">В расписании отображаются только даты и время занятий.</p></div><div class="card"><div class="tabs"><button id="prev">←</button><b id="month" style="padding:9px">Ноябрь 2026</b><button id="next">→</button></div><div class="calendar" id="grid"></div></div></section>
@@ -11,4 +27,124 @@
 </div></main></div>
 <script>
 let md=new Date(2026,10,1);function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===p));document.getElementById('crumb').textContent=({home:'Главная',courses:'Курсы',calendar:'Календарь',practice:'Тренажёр',profile:'Кабинет'})[p];if(p==='calendar')draw()}document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));document.getElementById('theme').onclick=()=>document.body.classList.toggle('dark');function draw(){let g=document.getElementById('grid'),y=md.getFullYear(),m=md.getMonth();document.getElementById('month').textContent=md.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});g.innerHTML=['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'].map(x=>`<div class="dow">${x}</div>`).join('');let off=(new Date(y,m,1).getDay()+6)%7;for(let i=0;i<off;i++)g.innerHTML+='<div></div>';let count=new Date(y,m+1,0).getDate();for(let d=1;d<=count;d++){g.innerHTML+=`<div class="day"><b>${d}</b></div>`}}document.getElementById('prev').onclick=()=>{md.setMonth(md.getMonth()-1);draw()};document.getElementById('next').onclick=()=>{md.setMonth(md.getMonth()+1);draw()};function demo(s){document.getElementById('mt').textContent='Демо-урок: '+s;document.getElementById('modal').style.display='grid'}draw();
+ const entryOverlay=document.getElementById('telegram-entry-overlay');
+ const entryControls=document.getElementById('telegram-entry-controls');
+ const sessionKey='online-school-server-session';
+ const entryDismissedKey='online-school-telegram-entry-dismissed';
+ ['telegram-register','telegram-open-bot','telegram-code','telegram-verify','telegram-auth-status'].forEach(id=>{
+  const element=document.getElementById(id);
+  if(element)entryControls.appendChild(element);
+ });
+ // Registration is optional: remember when a visitor dismisses the dialog.
+ const closeEntryButton=document.getElementById('telegram-entry-close');
+ function closeEntry(){
+  entryOverlay.hidden=true;
+  document.body.classList.remove('telegram-entry-open');
+ }
+ if(closeEntryButton)closeEntryButton.addEventListener('click',()=>{
+  localStorage.setItem(entryDismissedKey,'true');
+  closeEntry();
+ });
+ function requireTelegramLogin(){
+  if(sessionStorage.getItem(sessionKey)||localStorage.getItem(entryDismissedKey)==='true'){
+   closeEntry();
+   return;
+  }
+  entryOverlay.hidden=false;
+  document.body.classList.add('telegram-entry-open');
+ }
+ closeEntry(); // Просмотр сайта и расписания открыт всем; Telegram-вход необязателен.
+ const reopenEntryButton=document.getElementById('telegram-reopen');
+ if(reopenEntryButton)reopenEntryButton.addEventListener('click',()=>{
+  if(sessionStorage.getItem(sessionKey)){document.getElementById('telegram-logout').click();return;}
+  entryOverlay.hidden=false;
+  document.body.classList.add('telegram-entry-open');
+ });
+
+ const SUPABASE_URL='https://xjxwsapkrrvqrorovxfb.supabase.co';
+ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_wPSuir8BqMALU3YI-ICJzw_2GMBF1Mb';
+ const TELEGRAM_AUTH_API=SUPABASE_URL+'/functions/v1/rapid-worker';
+ const registerButton=document.getElementById('telegram-register');
+ const botLink=document.getElementById('telegram-open-bot');
+ const codeInput=document.getElementById('telegram-code');
+ const verifyButton=document.getElementById('telegram-verify');
+ const authStatus=document.getElementById('telegram-auth-status');
+ const functionHeaders={'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY};
+ let sessionToken=sessionStorage.getItem(sessionKey)||'';
+ let viewer=null;
+ let lessons=[];
+ async function api(action,payload={}){
+  const headers={...functionHeaders};
+  if(sessionToken)headers.Authorization='Bearer '+sessionToken;
+  const response=await fetch(TELEGRAM_AUTH_API,{method:'POST',headers,body:JSON.stringify({action,...payload})});
+  let result={};try{result=await response.json();}catch{}
+  if(!response.ok){const error=new Error(result.error||'Не удалось выполнить запрос.');error.status=response.status;throw error;}
+  return result;
+ }
+ function openLogin(){
+  localStorage.removeItem(entryDismissedKey);
+  entryOverlay.hidden=false;document.body.classList.add('telegram-entry-open');
+ }
+ function showRegistration(registrationId){
+  registerButton.hidden=false;
+  botLink.href='https://t.me/OnlineSchoolOgBot?start='+encodeURIComponent(registrationId);botLink.hidden=false;
+  codeInput.hidden=false;verifyButton.hidden=false;
+ }
+ registerButton.addEventListener('click',async()=>{
+  registerButton.disabled=true;authStatus.textContent='Создаём ссылку подтверждения…';
+  try{
+   const result=await api('start');
+   sessionStorage.setItem('online-school-telegram-registration',result.registrationId);
+   showRegistration(result.registrationId);
+   authStatus.textContent='Откройте бота, нажмите «Запустить», затем введите код из сообщения бота.';
+  }catch(error){authStatus.textContent=error.message||'Сервис регистрации пока не настроен.';}
+  finally{registerButton.disabled=false;}
+ });
+ verifyButton.addEventListener('click',async()=>{
+  const registrationId=sessionStorage.getItem('online-school-telegram-registration');
+  if(!registrationId){authStatus.textContent='Начните регистрацию заново.';return;}
+  verifyButton.disabled=true;authStatus.textContent='Проверяем код…';
+  try{
+   const result=await api('verify',{registrationId,code:codeInput.value});
+   if(result.status==='complete'){
+    if(!result.session)throw new Error('Сервер не создал сессию. Повторите вход.');
+    registerButton.hidden=true;botLink.hidden=true;codeInput.hidden=true;verifyButton.hidden=true;
+    authStatus.textContent='Аккаунт ученика создан'+(result.name?': '+result.name:'')+'.';
+    sessionStorage.removeItem('online-school-telegram-registration');
+    sessionToken=result.session;sessionStorage.setItem(sessionKey,sessionToken);
+    viewer=await api('session');
+    closeEntry();
+    await refreshSchedule();
+    return;
+   }
+   if(result.status==='wrong_code'){authStatus.textContent='Код неверный. Проверьте сообщение и попробуйте ещё раз.';return;}
+   if(result.status==='locked'){authStatus.textContent='Слишком много попыток. Начните регистрацию заново.';sessionStorage.removeItem('online-school-telegram-registration');return;}
+   if(result.status==='awaiting_telegram'){authStatus.textContent='Сначала откройте бота по ссылке и нажмите «Запустить».';return;}
+   if(result.status==='expired'){authStatus.textContent='Ссылка или код истекли. Начните регистрацию заново.';sessionStorage.removeItem('online-school-telegram-registration');return;}
+   if(result.status==='already_complete'){authStatus.textContent='Этот Telegram-аккаунт уже зарегистрирован.';return;}
+   throw new Error(result.error||'Не удалось проверить код.');
+  }catch(error){authStatus.textContent=error.message||'Ошибка проверки кода.';}
+  finally{verifyButton.disabled=false;}
+ });
+ const savedRegistration=sessionStorage.getItem('online-school-telegram-registration');
+ if(savedRegistration){
+  showRegistration(savedRegistration);
+  authStatus.textContent='Продолжите регистрацию в боте, затем введите полученный код.';
+ }
+
+
+
+ // Restore existing Telegram session on page load.
+ (async()=>{
+  if(sessionToken){
+   try{
+    viewer=await api('session');
+    const button=document.getElementById('telegram-reopen');
+    if(button)button.textContent='Выйти из аккаунта';
+   }catch(error){
+    sessionToken='';sessionStorage.removeItem(sessionKey);
+   }
+  }
+ })();
+
 </script></html>
