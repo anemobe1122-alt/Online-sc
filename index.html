@@ -389,12 +389,16 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  color:#e9def7!important;
  border:1px solid #59466e!important;
 }
+
+/* Never flash the optional Telegram registration dialog during page load */
+#telegram-entry-overlay:not(.is-open){display:none!important;visibility:hidden!important;pointer-events:none!important}
+#telegram-entry-overlay.is-open{display:flex!important;visibility:visible!important;pointer-events:auto!important}
 </style>
 </head>
 <body>
 <button type="button" id="display-theme-toggle" class="display-theme-toggle" aria-label="Переключить тему оформления">🌙 Тёмная тема</button>
 
-<div id="telegram-entry-overlay" class="telegram-entry-overlay" hidden>
+<div id="telegram-entry-overlay" class="telegram-entry-overlay" hidden aria-hidden="true">
  <div class="telegram-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="telegram-entry-title">
   <button type="button" class="telegram-entry-close" id="telegram-entry-close" aria-label="Закрыть окно">×</button>
   <h2 id="telegram-entry-title">Вход в аккаунт</h2>
@@ -551,8 +555,16 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  // Registration is optional: remember when a visitor dismisses the dialog.
  const closeEntryButton=document.getElementById('telegram-entry-close');
  function closeEntry(){
+  entryOverlay.classList.remove('is-open');
   entryOverlay.hidden=true;
+  entryOverlay.setAttribute('aria-hidden','true');
   document.body.classList.remove('telegram-entry-open');
+ }
+ function openEntry(){
+  entryOverlay.hidden=false;
+  entryOverlay.setAttribute('aria-hidden','false');
+  entryOverlay.classList.add('is-open');
+  document.body.classList.add('telegram-entry-open');
  }
  if(closeEntryButton)closeEntryButton.addEventListener('click',()=>{
   localStorage.setItem(entryDismissedKey,'true');
@@ -563,15 +575,13 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
    closeEntry();
    return;
   }
-  entryOverlay.hidden=false;
-  document.body.classList.add('telegram-entry-open');
+  openEntry();
  }
  closeEntry(); // Просмотр сайта и расписания открыт всем; Telegram-вход необязателен.
  const reopenEntryButton=document.getElementById('telegram-reopen');
  if(reopenEntryButton)reopenEntryButton.addEventListener('click',()=>{
   if(sessionStorage.getItem(sessionKey)){document.getElementById('telegram-logout').click();return;}
-  entryOverlay.hidden=false;
-  document.body.classList.add('telegram-entry-open');
+  openEntry();
  });
 
  const SUPABASE_URL='https://xjxwsapkrrvqrorovxfb.supabase.co';
@@ -596,7 +606,7 @@ header,.topbar,.top-header{background:#fff;color:#211a36;border-color:#e5d9ef}
  }
  function openLogin(){
   localStorage.removeItem(entryDismissedKey);
-  entryOverlay.hidden=false;document.body.classList.add('telegram-entry-open');
+  openEntry();
  }
  function showRegistration(registrationId){
   registerButton.hidden=false;
